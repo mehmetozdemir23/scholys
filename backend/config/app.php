@@ -125,4 +125,12 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*|--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    | This URL is used to redirect users after actions like school registration.
+    | It should point to the frontend application where users can complete their registration.
+    */
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+
 ];

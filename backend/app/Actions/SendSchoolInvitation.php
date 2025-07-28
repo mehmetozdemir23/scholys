@@ -8,7 +8,7 @@ use App\Mail\SchoolInvitationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
-final class InviteSchool
+final class SendSchoolInvitation
 {
     /**
      * Send an invitation to a school.
@@ -16,8 +16,8 @@ final class InviteSchool
     public function handle(string $email): void
     {
         $url = URL::temporarySignedRoute(
-            'school.confirm',
-            now()->addMinutes(60),
+            'school.register',
+            now()->addHour(),
             ['token' => $email]
         );
 

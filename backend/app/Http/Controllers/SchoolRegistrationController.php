@@ -4,34 +4,70 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\InviteSchool;
+use App\Actions\CompleteAccountSetup;
+use App\Actions\SendSchoolInvitation;
 use App\Http\Requests\SchoolInvitationRequest;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Exceptions\InvalidSignatureException;
 
 final class SchoolRegistrationController extends Controller
 {
-    public function sendInvitation(SchoolInvitationRequest $request, InviteSchool $inviteSchool): JsonResponse
+    /**
+     * Send an invitation to a school.
+     */
+    public function sendInvitation(SchoolInvitationRequest $request, SendSchoolInvitation $sendSchoolInvitation): JsonResponse
     {
         /** @var string $email */
         $email = $request->email;
 
         try {
-            $inviteSchool->handle($email);
+            $sendSchoolInvitation->handle($email);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Failed to send invitation email: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to send invitation email: '.$e->getMessage()], 500);
         }
 
         return response()->json(['message' => 'Invitation sent successfully.']);
     }
 
-    public function confirmInvitation(Request $request): JsonResponse
+    /**
+     * Complete the account setup after the school invitation is accepted.
+     */
+    public function completeAccountSetup(Request $request, CompleteAccountSetup $completeAccountSetup): RedirectResponse
     {
-        if (!$request->hasValidSignature()) {
-            return response()->json(['message' => 'Invalid or expired invitation link.'], 403);
-        }
+        /** @var string $frontendUrl */
+        $frontendUrl = config('app.frontend_url');
 
-        return response()->json(['message' => 'Invitation confirmed successfully.']);
+        try {
+            $result = $completeAccountSetup->handle($request);
+
+            auth()->loginUsingId($result['user_id']);
+
+            $params = http_build_query(
+                [
+                    'status' => 'success',
+                    'user_id' => $result['user_id'],
+                    'user_email' => $result['user_email'],
+                ]
+            );
+
+            return redirect("$frontendUrl/school/registration?$params");
+        } catch (InvalidSignatureException) {
+            $params = http_build_query([
+                'status' => 'error',
+                'message' => 'Invalid or expired invitation link.',
+            ]);
+
+            return redirect("$frontendUrl/school/registration?$params");
+        } catch (Exception $e) {
+            $params = http_build_query([
+                'status' => 'error',
+                'message' => 'Failed to confirm school registration: '.$e->getMessage(),
+            ]);
+
+            return redirect("$frontendUrl/school/registration?$params");
+        }
     }
 }
