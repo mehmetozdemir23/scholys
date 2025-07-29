@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class CompleteAccountSetup
 {
@@ -38,6 +39,7 @@ final class CompleteAccountSetup
             $user = User::create([
                 'email' => $email,
                 'school_id' => $school->id,
+                'password' => bcrypt(Str::random(32)), // Temporary password
             ]);
             $user->assignRole(Role::SUPER_ADMIN);
         });

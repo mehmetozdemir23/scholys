@@ -44,13 +44,22 @@ describe('User Model', function (): void {
             ->and(mb_strlen($user->password))->toBeGreaterThan(50);
     });
 
-    describe('school relationship', function () {
+    describe('relationships', function () {
         test('belongs to a school', function (): void {
             $school = School::factory()->create();
             $user = User::factory()->create(['school_id' => $school->id]);
 
             expect($user->school)->toBeInstanceOf(School::class)
                 ->and($user->school->id)->toBe($school->id);
+        });
+
+        test('school has many users', function (): void {
+            $school = School::factory()->create();
+            $user1 = User::factory()->create(['school_id' => $school->id]);
+            $user2 = User::factory()->create(['school_id' => $school->id]);
+
+            expect($school->users)->toHaveCount(2)
+                ->and($school->users->pluck('id'))->toContain($user1->id, $user2->id);
         });
     });
 
