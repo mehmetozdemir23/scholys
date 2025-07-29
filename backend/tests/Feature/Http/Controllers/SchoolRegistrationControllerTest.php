@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\URL;
 
 describe('SchoolRegistrationController', function () {
     describe('sendInvitation', function () {
-        it('can send an invitation', function (): void {
+        test('can send an invitation', function (): void {
             Mail::fake();
 
             $response = $this->postJson(route('school.invite'), [
@@ -22,14 +22,14 @@ describe('SchoolRegistrationController', function () {
             Mail::assertSent(App\Mail\SchoolInvitationMail::class);
         });
 
-        it('validates email is required', function (): void {
+        test('validates email is required', function (): void {
             $response = $this->postJson(route('school.invite'), []);
 
             $response->assertStatus(422)
                 ->assertJsonValidationErrors(['email']);
         });
 
-        it('validates email format', function (): void {
+        test('validates email format', function (): void {
             $response = $this->postJson(route('school.invite'), [
                 'email' => 'invalid-email',
             ]);
@@ -38,7 +38,7 @@ describe('SchoolRegistrationController', function () {
                 ->assertJsonValidationErrors(['email']);
         });
 
-        it('validates email is unique', function (): void {
+        test('validates email is unique', function (): void {
             User::factory()->create(['email' => 'existing@example.com']);
 
             $response = $this->postJson(route('school.invite'), [
@@ -49,7 +49,7 @@ describe('SchoolRegistrationController', function () {
                 ->assertJsonValidationErrors(['email']);
         });
 
-        it('returns error when mail sending fails', function (): void {
+        test('returns error when mail sending fails', function (): void {
             Mail::fake();
             Mail::shouldReceive('to')->andThrow(new Exception('Mail server error'));
 
@@ -63,7 +63,7 @@ describe('SchoolRegistrationController', function () {
     });
 
     describe('completeAccountSetup', function () {
-        it('redirects to frontend on successful account setup', function (): void {
+        test('redirects to frontend on successful account setup', function (): void {
             Role::create(['name' => Role::SUPER_ADMIN]);
 
             $email = 'admin@school.com';
@@ -84,7 +84,7 @@ describe('SchoolRegistrationController', function () {
             expect(User::where('email', $email)->exists())->toBeTrue();
         });
 
-        it('redirects with error for invalid signature', function (): void {
+        test('redirects with error for invalid signature', function (): void {
             // This simulates an invalid signature - the token is not signed
             $invalidUrl = route('school.register', ['token' => 'email']);
 
@@ -98,7 +98,7 @@ describe('SchoolRegistrationController', function () {
                 ]));
         });
 
-        it('redirects with error for expired signature', function (): void {
+        test('redirects with error for expired signature', function (): void {
             $email = 'admin@school.com';
             $url = URL::temporarySignedRoute(
                 'school.register',
@@ -116,7 +116,7 @@ describe('SchoolRegistrationController', function () {
                 ]));
         });
 
-        it('redirects with error when account setup fails', function (): void {
+        test('redirects with error when account setup fails', function (): void {
             $email = 'admin@school.com';
             $url = URL::temporarySignedRoute(
                 'school.register',
