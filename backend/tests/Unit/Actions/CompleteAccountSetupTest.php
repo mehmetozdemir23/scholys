@@ -34,11 +34,11 @@ test('handles account creation with temporary password', function (): void {
     expect($user->email)->toBe($email)
         ->and($user->hasRole(Role::SUPER_ADMIN))->toBeTrue()
         ->and($user->password)->not->toBeNull()
-        ->and(mb_strlen($user->password))->toBeGreaterThan(50); // Verify password is hashed
+        ->and(mb_strlen($user->password))->toBeGreaterThan(50);
 });
 
 test('throws exception for invalid signature', function (): void {
-    // Signature and expires parameters missing from the url - this simulates an invalid signature
+
     $request = Request::create('/school/register?token=admin@school.com');
     $completeAccountSetup = new CompleteAccountSetup;
 

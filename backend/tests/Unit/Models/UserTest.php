@@ -130,7 +130,7 @@ describe('User Model', function (): void {
         $user = User::factory()->create();
 
         expect($user->id)->toBeString()
-            ->and(mb_strlen($user->id))->toBe(36) // UUID length
+            ->and(mb_strlen($user->id))->toBe(36)
             ->and($user->id)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/');
     });
 });

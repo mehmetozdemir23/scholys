@@ -6,7 +6,9 @@ namespace App\Http\Controllers;
 
 use App\Actions\CompleteAccountSetup;
 use App\Actions\SendSchoolInvitation;
+use App\Http\Requests\ResetPasswordAfterInvitationRequest;
 use App\Http\Requests\SchoolInvitationRequest;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -43,12 +45,14 @@ final class SchoolRegistrationController extends Controller
         try {
             $result = $completeAccountSetup->handle($request);
 
-            auth()->loginUsingId($result['user_id']);
+            /** @var User $user */
+            $user = User::find($result['user_id']);
+            $token = $user->createToken('School Registration Token')->plainTextToken;
 
             $params = http_build_query(
                 [
                     'status' => 'success',
-                    'user_id' => $result['user_id'],
+                    'token' => $token,
                     'user_email' => $result['user_email'],
                 ]
             );
@@ -69,5 +73,30 @@ final class SchoolRegistrationController extends Controller
 
             return redirect("$frontendUrl/school/registration?$params");
         }
+    }
+
+    /**
+     * Reset the password after the school invitation is accepted.
+     */
+    public function resetPasswordAfterInvitation(ResetPasswordAfterInvitationRequest $request): JsonResponse
+    {
+        try {
+            /** @var User $user */
+            $user = $request->user();
+
+            /** @var string $password */
+            $password = $request->input('password');
+
+            $user->update([
+                'password' => bcrypt($password),
+            ]);
+
+            // @codeCoverageIgnoreStart
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Failed to reset password: '.$e->getMessage()], 500);
+        }
+        // @codeCoverageIgnoreEnd
+
+        return response()->json(['message' => 'Password reset successfully.']);
     }
 }

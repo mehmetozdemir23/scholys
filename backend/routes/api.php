@@ -17,6 +17,8 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/user/password', [UserController::class, 'updatePassword'])
         ->name('user.password.update');
+    Route::post('/school/registration/reset-password', [SchoolRegistrationController::class, 'resetPasswordAfterInvitation'])
+        ->name('school.registration.reset-password');
     Route::patch('/school/{school}', [SchoolController::class, 'update'])
         ->name('school.update');
 });

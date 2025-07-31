@@ -70,7 +70,7 @@ describe('SchoolController', function (): void {
 
             $this->actingAs($user);
             $response = $this->patchJson(route('school.update', $school), [
-                'name' => str_repeat('a', 256), // 256 chars, exceeds max 255
+                'name' => str_repeat('a', 256),
                 'address' => 'Valid Address',
             ]);
 
@@ -87,7 +87,7 @@ describe('SchoolController', function (): void {
             $this->actingAs($user);
             $response = $this->patchJson(route('school.update', $school), [
                 'name' => 'Valid Name',
-                'address' => str_repeat('a', 256), // 256 chars, exceeds max 255
+                'address' => str_repeat('a', 256),
             ]);
 
             $response->assertStatus(422)
@@ -121,7 +121,7 @@ describe('SchoolController', function (): void {
             $response = $this->patchJson(route('school.update', $school), [
                 'name' => 'Valid Name',
                 'address' => 'Valid Address',
-                'contact_phone' => str_repeat('1', 21), // 21 chars, exceeds max 20
+                'contact_phone' => str_repeat('1', 21),
             ]);
 
             $response->assertStatus(422)
@@ -135,7 +135,7 @@ describe('SchoolController', function (): void {
             $user->roles()->attach($role);
 
             $this->actingAs($user);
-            // Test partial update with only name
+
             $response = $this->patchJson(route('school.update', $school), [
                 'name' => 'Only Name Updated',
             ]);
@@ -143,7 +143,6 @@ describe('SchoolController', function (): void {
             $response->assertStatus(200)
                 ->assertJson(['message' => 'School updated successfully.']);
 
-            // Test partial update with only address
             $response = $this->patchJson(route('school.update', $school), [
                 'address' => 'Only Address Updated',
             ]);

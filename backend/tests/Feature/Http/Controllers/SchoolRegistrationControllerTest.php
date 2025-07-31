@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
-describe('SchoolRegistrationController', function () {
-    describe('sendInvitation', function () {
+describe('SchoolRegistrationController', function (): void {
+    describe('sendInvitation', function (): void {
         test('can send an invitation', function (): void {
             Mail::fake();
 
@@ -62,7 +63,7 @@ describe('SchoolRegistrationController', function () {
         });
     });
 
-    describe('completeAccountSetup', function () {
+    describe('completeAccountSetup', function (): void {
         test('redirects to frontend on successful account setup', function (): void {
             Role::create(['name' => Role::SUPER_ADMIN]);
 
@@ -75,17 +76,19 @@ describe('SchoolRegistrationController', function () {
 
             $response = $this->get($url);
 
+            $user = User::firstWhere('email', $email);
+
             $response->assertStatus(302)
                 ->assertRedirect()
                 ->assertRedirectContains('status=success')
-                ->assertRedirectContains('user_email='.urlencode($email));
+                ->assertRedirectContains('user_email='.urlencode($email))
+                ->assertRedirectContains('token=');
 
-            $this->assertAuthenticated();
             expect(User::where('email', $email)->exists())->toBeTrue();
         });
 
         test('redirects with error for invalid signature', function (): void {
-            // This simulates an invalid signature - the token is not signed
+
             $invalidUrl = route('school.register', ['token' => 'email']);
 
             $response = $this->get($invalidUrl);
@@ -116,7 +119,8 @@ describe('SchoolRegistrationController', function () {
                 ]));
         });
 
-        test('redirects with error when account setup fails', function (): void {
+        test('redirects with error when account setup throws exception', function (): void {
+
             $email = 'admin@school.com';
             $url = URL::temporarySignedRoute(
                 'school.register',
@@ -129,9 +133,70 @@ describe('SchoolRegistrationController', function () {
             $response->assertStatus(302)
                 ->assertRedirect()
                 ->assertRedirectContains('status=error')
-                ->assertRedirectContains(http_build_query([
-                    'message' => 'Failed to confirm school registration: ',
-                ]));
+                ->assertRedirectContains('Failed+to+confirm+school+registration');
+        });
+
+    });
+
+    describe('resetPasswordAfterInvitation', function (): void {
+        test('resets password after invitation', function (): void {
+            $user = User::factory()->create(['email' => 'admin@school.com']);
+            $token = $user->createToken('test')->plainTextToken;
+
+            $response = $this->withToken($token)->postJson(route('school.registration.reset-password'), [
+                'email' => $user->email,
+                'password' => 'new_password123',
+                'password_confirmation' => 'new_password123',
+            ]);
+
+            $response->assertStatus(200)
+                ->assertJson(['message' => 'Password reset successfully.']);
+
+            $user->refresh();
+            expect(Hash::check('new_password123', $user->password))->toBeTrue();
+        });
+
+        test('requires authentication for password reset', function (): void {
+            $response = $this->postJson(route('school.registration.reset-password'), [
+                'email' => 'admin@school.com',
+                'password' => 'new_password123',
+                'password_confirmation' => 'new_password123',
+            ]);
+            $response->assertStatus(401);
+        });
+
+        test('validates password is required for reset', function (): void {
+            $user = User::factory()->create();
+            $token = $user->createToken('test')->plainTextToken;
+            $response = $this->withToken($token)->postJson(route('school.registration.reset-password'), []);
+
+            $response->assertStatus(422)
+                ->assertJsonValidationErrors(['password']);
+        });
+
+        test('validates password minimum length for reset', function (): void {
+            $user = User::factory()->create();
+            $token = $user->createToken('test')->plainTextToken;
+            $response = $this->withToken($token)->postJson(route('school.registration.reset-password'), [
+                'password' => 'short',
+                'password_confirmation' => 'short',
+            ]);
+
+            $response->assertStatus(422)
+                ->assertJsonValidationErrors(['password']);
+        });
+
+        test('validates password confirmation for reset', function (): void {
+            $user = User::factory()->create();
+            $token = $user->createToken('test')->plainTextToken;
+
+            $response = $this->withToken($token)->postJson(route('school.registration.reset-password'), [
+                'password' => 'valid_password123',
+                'password_confirmation' => 'different_password',
+            ]);
+
+            $response->assertStatus(422)
+                ->assertJsonValidationErrors(['password']);
         });
     });
 });
