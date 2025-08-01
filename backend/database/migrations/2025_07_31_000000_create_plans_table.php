@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('schools', function (Blueprint $table): void {
+        Schema::create('plans', function (Blueprint $table): void {
             $table->uuid('id')->primary();
-            $table->foreignUuid('plan_id')->nullable()->constrained();
-            $table->string('name')->unique()->nullable();
-            $table->string('contact_email')->unique()->nullable();
-            $table->string('contact_phone')->nullable();
-            $table->string('address')->nullable();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->decimal('price', 8, 2)->default(0);
+            $table->integer('max_users')->nullable();
+            $table->json('features')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('schools');
+        Schema::dropIfExists('plans');
     }
 };

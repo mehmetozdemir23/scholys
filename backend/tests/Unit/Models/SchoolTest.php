@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Plan;
 use App\Models\School;
 use App\Models\User;
 
@@ -44,6 +45,35 @@ describe('School Model', function (): void {
 
             expect($school->users)->toHaveCount(0)
                 ->and($school->users)->toBeEmpty();
+        });
+
+        test('belongs to a plan', function (): void {
+            $plan = Plan::factory()->create();
+            $school = School::factory()->create(['plan_id' => $plan->id]);
+
+            expect($school->plan)->toBeInstanceOf(Plan::class)
+                ->and($school->plan->id)->toBe($plan->id);
+        });
+
+        test('can have no plan', function (): void {
+            $school = School::factory()->create(['plan_id' => null]);
+
+            expect($school->plan)->toBeNull();
+        });
+    });
+
+    describe('plan selection methods', function () {
+        test('needsPlanSelection returns true when plan_id is null', function (): void {
+            $school = School::factory()->create(['plan_id' => null]);
+
+            expect($school->needsPlanSelection())->toBeTrue();
+        });
+
+        test('needsPlanSelection returns false when plan_id is set', function (): void {
+            $plan = Plan::factory()->create();
+            $school = School::factory()->create(['plan_id' => $plan->id]);
+
+            expect($school->needsPlanSelection())->toBeFalse();
         });
     });
 });

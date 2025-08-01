@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Models\Plan;
 use App\Models\Role;
+use App\Models\School;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -198,5 +200,79 @@ describe('SchoolRegistrationController', function (): void {
             $response->assertStatus(422)
                 ->assertJsonValidationErrors(['password']);
         });
+    });
+
+    describe('selectPlan', function (): void {
+        test('can select a plan for school', function (): void {
+            $plan = Plan::factory()->create();
+            $school = School::factory()->create(['plan_id' => null]);
+            $user = User::factory()->create(['school_id' => $school->id]);
+            $token = $user->createToken('test')->plainTextToken;
+
+            $response = $this->withToken($token)
+                ->postJson(route('school.registration.select-plan'), [
+                    'plan_id' => $plan->id,
+                ]);
+
+            $response->assertStatus(200)
+                ->assertJson(['message' => 'Plan selected successfully.']);
+
+            $school->refresh();
+            expect($school->plan_id)->toBe($plan->id);
+        });
+
+        test('requires authentication to select plan', function (): void {
+            $plan = Plan::factory()->create();
+
+            $response = $this->postJson(route('school.registration.select-plan'), [
+                'plan_id' => $plan->id,
+            ]);
+
+            $response->assertStatus(401);
+        });
+
+        test('validates plan_id is required', function (): void {
+            $user = User::factory()->create();
+            $token = $user->createToken('test')->plainTextToken;
+
+            $response = $this->withToken($token)
+                ->postJson(route('school.registration.select-plan'), []);
+
+            $response->assertStatus(422)
+                ->assertJsonValidationErrors(['plan_id']);
+        });
+
+        test('validates plan_id exists in plans table', function (): void {
+            $user = User::factory()->create();
+            $token = $user->createToken('test')->plainTextToken;
+
+            $response = $this->withToken($token)
+                ->postJson(route('school.registration.select-plan'), [
+                    'plan_id' => 'non-existent-id',
+                ]);
+
+            $response->assertStatus(422)
+                ->assertJsonValidationErrors(['plan_id']);
+        });
+
+        test('updates existing plan when school already has one', function (): void {
+            $oldPlan = Plan::factory()->create();
+            $newPlan = Plan::factory()->create();
+            $school = School::factory()->create(['plan_id' => $oldPlan->id]);
+            $user = User::factory()->create(['school_id' => $school->id]);
+            $token = $user->createToken('test')->plainTextToken;
+
+            $response = $this->withToken($token)
+                ->postJson(route('school.registration.select-plan'), [
+                    'plan_id' => $newPlan->id,
+                ]);
+
+            $response->assertStatus(200)
+                ->assertJson(['message' => 'Plan selected successfully.']);
+
+            $school->refresh();
+            expect($school->plan_id)->toBe($newPlan->id);
+        });
+
     });
 });
