@@ -15,7 +15,7 @@ final class UpdateSchoolRequest extends FormRequest
     public function authorize(): bool
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = $this->user();
 
         return $user->can('update', $this->route('school'));
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 final class DatabaseSeeder extends Seeder
@@ -14,9 +14,6 @@ final class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        Role::create(['name' => Role::SUPER_ADMIN]);
     }
 }

@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('schools', function (Blueprint $table): void {
             $table->uuid('id')->primary();
-            $table->foreignUuid('plan_id')->nullable()->constrained();
             $table->string('name')->unique()->nullable();
             $table->string('contact_email')->unique()->nullable();
             $table->string('contact_phone')->nullable();

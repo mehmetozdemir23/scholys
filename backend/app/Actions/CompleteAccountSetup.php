@@ -36,10 +36,11 @@ final class CompleteAccountSetup
 
         DB::transaction(function () use (&$user, $email): void {
             $school = School::create();
+
             $user = User::create([
                 'email' => $email,
                 'school_id' => $school->id,
-                'password' => bcrypt(Str::random(32)), // Temporary password
+                'password' => bcrypt(Str::random(32)),
             ]);
             $user->assignRole(Role::SUPER_ADMIN);
         });

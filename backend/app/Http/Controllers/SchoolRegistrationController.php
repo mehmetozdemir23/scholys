@@ -8,8 +8,6 @@ use App\Actions\CompleteAccountSetup;
 use App\Actions\SendSchoolInvitation;
 use App\Http\Requests\ResetPasswordAfterInvitationRequest;
 use App\Http\Requests\SchoolInvitationRequest;
-use App\Http\Requests\SelectPlanRequest;
-use App\Models\School;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -101,34 +99,5 @@ final class SchoolRegistrationController extends Controller
         // @codeCoverageIgnoreEnd
 
         return response()->json(['message' => 'Password reset successfully.']);
-    }
-
-    /**
-     * Select a plan for the school during registration.
-     */
-    public function selectPlan(SelectPlanRequest $request): JsonResponse
-    {
-        try {
-            /** @var User $user */
-            $user = $request->user();
-
-            /** @var string $planId */
-            $planId = $request->input('plan_id');
-
-            /** @var School $school */
-            $school = $user->school;
-
-            $school->update([
-                'plan_id' => $planId,
-            ]);
-
-        }
-        // @codeCoverageIgnoreStart
-        catch (Exception $e) {
-            return response()->json(['message' => 'Failed to select plan: '.$e->getMessage()], 500);
-        }
-        // @codeCoverageIgnoreEnd
-
-        return response()->json(['message' => 'Plan selected successfully.']);
     }
 }
