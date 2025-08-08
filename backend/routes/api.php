@@ -8,17 +8,22 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function (): void {
-    Route::post('/school/invite', [SchoolRegistrationController::class, 'sendInvitation'])
-        ->name('school.invite');
-    Route::get('/school/register', [SchoolRegistrationController::class, 'completeAccountSetup'])
-        ->name('school.register');
+    Route::name('school.')->prefix('/school')->group(function (): void {
+        Route::post('invite', [SchoolRegistrationController::class, 'sendInvitation'])
+            ->name('invite');
+        Route::get('register', [SchoolRegistrationController::class, 'completeAccountSetup'])
+            ->name('register');
+    });
 });
 
 Route::middleware('auth:sanctum')->group(function (): void {
-    Route::post('/user/password', [UserController::class, 'updatePassword'])
+    Route::post('user/password', [UserController::class, 'updatePassword'])
         ->name('user.password.update');
-    Route::post('/school/registration/reset-password', [SchoolRegistrationController::class, 'resetPasswordAfterInvitation'])
-        ->name('school.registration.reset-password');
-    Route::patch('/school/{school}', [SchoolController::class, 'update'])
-        ->name('school.update');
+
+    Route::name('school.')->prefix('/school')->group(function () {
+        Route::post('registration/reset-password', [SchoolRegistrationController::class, 'resetPasswordAfterInvitation'])
+            ->name('registration.reset-password');
+        Route::patch('{school}', [SchoolController::class, 'update'])
+            ->name('update');
+    });
 });
