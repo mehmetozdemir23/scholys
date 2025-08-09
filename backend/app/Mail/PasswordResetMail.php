@@ -11,14 +11,14 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-final class SchoolInvitationMail extends Mailable
+final class PasswordResetMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(private string $email, private string $url)
+    public function __construct(private string $token)
     {
         //
     }
@@ -36,7 +36,7 @@ final class SchoolInvitationMail extends Mailable
 
         return new Envelope(
             from: new Address($email, $name),
-            subject: 'Invitation à rejoindre Scholys',
+            subject: 'Réinitialisation de votre mot de passe - Scholys',
         );
     }
 
@@ -46,10 +46,9 @@ final class SchoolInvitationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.school-invitation',
+            markdown: 'mail.password-reset',
             with: [
-                'email' => $this->email,
-                'url' => $this->url,
+                'token' => $this->token,
             ]
         );
     }

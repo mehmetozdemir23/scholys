@@ -28,7 +28,7 @@ describe('SchoolInvitationMail', function (): void {
             ->and($envelope->from)->toBeInstanceOf(Address::class)
             ->and($envelope->from->address)->toBe('contact@scholys.com')
             ->and($envelope->from->name)->toBe('Scholys')
-            ->and($envelope->subject)->toBe('School Invitation Mail');
+            ->and($envelope->subject)->toBe('Invitation à rejoindre Scholys');
     });
 
     test('content uses correct view with data', function (): void {
