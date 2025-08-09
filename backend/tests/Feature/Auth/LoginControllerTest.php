@@ -3,13 +3,12 @@
 declare(strict_types=1);
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 describe('LoginController', function (): void {
     test('user can login with valid credentials', function (): void {
         $user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->postJson('/login', [
@@ -32,7 +31,7 @@ describe('LoginController', function (): void {
     test('user can login with remember me', function (): void {
         $user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->postJson('/login', [
@@ -48,7 +47,7 @@ describe('LoginController', function (): void {
     test('user cannot login with invalid email', function (): void {
         User::factory()->create([
             'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->postJson('/login', [
@@ -70,7 +69,7 @@ describe('LoginController', function (): void {
     test('user cannot login with invalid password', function (): void {
         User::factory()->create([
             'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->postJson('/login', [
@@ -120,7 +119,7 @@ describe('LoginController', function (): void {
     test('remember me must be boolean', function (): void {
         User::factory()->create([
             'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->postJson('/login', [
@@ -136,7 +135,7 @@ describe('LoginController', function (): void {
     test('session is regenerated on successful login', function (): void {
         $user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
+            'password' => bcrypt('password123'),
         ]);
 
         $this->startSession();
@@ -154,7 +153,7 @@ describe('LoginController', function (): void {
     test('response contains user data', function (): void {
         $user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->postJson('/login', [
