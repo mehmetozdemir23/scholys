@@ -17,10 +17,15 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::middleware('auth:sanctum')->group(function (): void {
+
+    Route::name('users.')->prefix('/users')->group(function (): void {
+        Route::post('', [UserController::class, 'store'])->name('store');
+    });
+
     Route::post('user/password', [UserController::class, 'updatePassword'])
         ->name('user.password.update');
 
-    Route::name('school.')->prefix('/school')->group(function () {
+    Route::name('school.')->prefix('/school')->group(function (): void {
         Route::post('registration/reset-password', [SchoolRegistrationController::class, 'resetPasswordAfterInvitation'])
             ->name('registration.reset-password');
         Route::patch('{school}', [SchoolController::class, 'update'])
