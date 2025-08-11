@@ -22,27 +22,33 @@ final class ResetPasswordController extends Controller
             ->where('email', $validated['email'])
             ->first();
 
-        if (!$reset) {
+        if (! $reset) {
             return response()->json(['message' => 'Token invalide ou expiré.'], 422);
         }
 
-        if (!Hash::check($validated['token'], $reset->token)) {
+        /** @var object{token: string, created_at: string, email: string} $reset */
+        /** @var string $token */
+        $token = $validated['token'];
+        if (! Hash::check($token, $reset->token)) {
             return response()->json(['message' => 'Token invalide ou expiré.'], 422);
         }
 
         if (Carbon::parse($reset->created_at)->addMinutes(60)->isPast()) {
             DB::table('password_resets')->where('email', $validated['email'])->delete();
+
             return response()->json(['message' => 'Token invalide ou expiré.'], 422);
         }
 
         $user = User::where('email', $validated['email'])->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Utilisateur introuvable.'], 404);
         }
 
+        /** @var string $password */
+        $password = $validated['password'];
         $user->update([
-            'password' => bcrypt($validated['password'])
+            'password' => bcrypt($password),
         ]);
 
         DB::table('password_resets')->where('email', $validated['email'])->delete();

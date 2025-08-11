@@ -76,7 +76,7 @@ describe('ForgotPasswordController', function (): void {
             ->first();
 
         expect($record)->not->toBeNull();
-        expect($record->token)->toHaveLength(60); // bcrypt hash length
+        expect($record->token)->toHaveLength(60);
         expect($record->created_at)->not->toBeNull();
     });
 
