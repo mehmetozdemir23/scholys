@@ -14,10 +14,7 @@ final class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        /** @var User $user */
-        $user = $this->user();
-
-        return $user->can('create', User::class);
+        return $this->user()->can('create', User::class);
     }
 
     /**

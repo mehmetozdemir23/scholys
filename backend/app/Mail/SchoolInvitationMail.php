@@ -28,14 +28,8 @@ final class SchoolInvitationMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        /** @var string $email */
-        $email = config('mail.from.address');
-
-        /** @var string $name */
-        $name = config('mail.from.name');
-
         return new Envelope(
-            from: new Address($email, $name),
+            from: new Address(config('mail.from.address'), config('mail.from.name')),
             subject: 'Invitation à rejoindre Scholys',
         );
     }

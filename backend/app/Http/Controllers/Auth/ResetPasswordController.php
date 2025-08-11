@@ -26,10 +26,7 @@ final class ResetPasswordController extends Controller
             return response()->json(['message' => 'Token invalide ou expiré.'], 422);
         }
 
-        /** @var object{token: string, created_at: string, email: string} $reset */
-        /** @var string $token */
-        $token = $validated['token'];
-        if (! Hash::check($token, $reset->token)) {
+        if (! Hash::check($validated['token'], $reset->token)) {
             return response()->json(['message' => 'Token invalide ou expiré.'], 422);
         }
 
@@ -45,10 +42,8 @@ final class ResetPasswordController extends Controller
             return response()->json(['message' => 'Utilisateur introuvable.'], 404);
         }
 
-        /** @var string $password */
-        $password = $validated['password'];
         $user->update([
-            'password' => bcrypt($password),
+            'password' => bcrypt($validated['password']),
         ]);
 
         DB::table('password_resets')->where('email', $validated['email'])->delete();

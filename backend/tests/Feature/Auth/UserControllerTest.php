@@ -13,13 +13,8 @@ uses(RefreshDatabase::class);
 
 function createSuperAdmin(): User
 {
-    /** @var School $school */
     $school = School::factory()->create();
-
-    /** @var Role $superAdminRole */
     $superAdminRole = Role::factory()->create(['name' => Role::SUPER_ADMIN]);
-
-    /** @var User $admin */
     $admin = User::factory()->create(['school_id' => $school->id]);
     $admin->roles()->attach($superAdminRole);
 

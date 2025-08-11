@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
 final class LoginController extends Controller
@@ -21,7 +20,6 @@ final class LoginController extends Controller
         ) {
             $request->session()->regenerate();
 
-            /** @var User $user */
             $user = auth()->user();
 
             return response()->json([

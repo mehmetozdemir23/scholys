@@ -19,9 +19,7 @@ final class UserController extends Controller
     {
         $attributes = $request->validated();
 
-        /** @var User $user */
-        $user = $request->user();
-        $schoolId = $user->school_id;
+        $schoolId = $request->user()->school_id;
 
         $createUser->handle(['school_id' => $schoolId, ...$attributes]);
 
@@ -35,14 +33,10 @@ final class UserController extends Controller
      */
     public function updatePassword(UpdateUserPasswordRequest $request): JsonResponse
     {
-        /** @var User $user */
         $user = auth()->user();
 
-        /** @var string newPassword */
-        $newPassword = $request->input('new_password');
-
         $user->update([
-            'password' => bcrypt($newPassword),
+            'password' => bcrypt($request->input('new_password')),
         ]);
 
         return response()->json(['message' => 'Password updated successfully.']);
