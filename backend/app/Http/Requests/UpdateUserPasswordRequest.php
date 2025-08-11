@@ -27,4 +27,16 @@ final class UpdateUserPasswordRequest extends FormRequest
             'new_password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
+
+    /**
+     * Get custom validation messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'new_password.required' => 'Le nouveau mot de passe est obligatoire.',
+            'new_password.min' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.',
+            'new_password.confirmed' => 'La confirmation du nouveau mot de passe ne correspond pas.',
+        ];
+    }
 }

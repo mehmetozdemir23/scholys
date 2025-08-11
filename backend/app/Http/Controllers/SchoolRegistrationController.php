@@ -28,10 +28,10 @@ final class SchoolRegistrationController extends Controller
         try {
             $sendSchoolInvitation->handle($email);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Failed to send invitation email: '.$e->getMessage()], 500);
+            return response()->json(['message' => 'Échec de l\'envoi de l\'invitation : '.$e->getMessage()], 500);
         }
 
-        return response()->json(['message' => 'Invitation sent successfully.']);
+        return response()->json(['message' => 'Invitation envoyée avec succès.']);
     }
 
     /**
@@ -47,7 +47,7 @@ final class SchoolRegistrationController extends Controller
 
             /** @var User $user */
             $user = User::find($result['user_id']);
-            $token = $user->createToken('School Registration Token')->plainTextToken;
+            $token = $user->createToken('Token d\'inscription scolaire')->plainTextToken;
 
             $params = http_build_query(
                 [
@@ -61,14 +61,14 @@ final class SchoolRegistrationController extends Controller
         } catch (InvalidSignatureException) {
             $params = http_build_query([
                 'status' => 'error',
-                'message' => 'Invalid or expired invitation link.',
+                'message' => 'Lien d\'invitation invalide ou expiré.',
             ]);
 
             return redirect("$frontendUrl/school/registration?$params");
         } catch (Exception $e) {
             $params = http_build_query([
                 'status' => 'error',
-                'message' => 'Failed to confirm school registration: '.$e->getMessage(),
+                'message' => 'Échec de la confirmation d\'inscription : '.$e->getMessage(),
             ]);
 
             return redirect("$frontendUrl/school/registration?$params");
@@ -94,10 +94,10 @@ final class SchoolRegistrationController extends Controller
         }
         // @codeCoverageIgnoreStart
         catch (Exception $e) {
-            return response()->json(['message' => 'Failed to reset password: '.$e->getMessage()], 500);
+            return response()->json(['message' => 'Échec de la réinitialisation du mot de passe : '.$e->getMessage()], 500);
         }
         // @codeCoverageIgnoreEnd
 
-        return response()->json(['message' => 'Password reset successfully.']);
+        return response()->json(['message' => 'Mot de passe réinitialisé avec succès.']);
     }
 }

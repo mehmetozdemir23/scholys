@@ -29,4 +29,17 @@ final class LoginRequest extends FormRequest
             'remember_me' => ['boolean'],
         ];
     }
+
+    /**
+     * Get custom validation messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'L\'adresse e-mail est obligatoire.',
+            'email.email' => 'L\'adresse e-mail doit être valide.',
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'remember_me.boolean' => 'Se souvenir de moi doit être vrai ou faux.',
+        ];
+    }
 }

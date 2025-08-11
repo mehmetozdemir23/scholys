@@ -39,6 +39,6 @@ final class UserController extends Controller
             'password' => bcrypt($request->input('new_password')),
         ]);
 
-        return response()->json(['message' => 'Password updated successfully.']);
+        return response()->json(['message' => 'Mot de passe mis à jour avec succès.']);
     }
 }

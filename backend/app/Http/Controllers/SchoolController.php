@@ -14,6 +14,6 @@ final class SchoolController extends Controller
     {
         $school->update($request->validated());
 
-        return response()->json(['message' => 'School updated successfully.']);
+        return response()->json(['message' => 'École mise à jour avec succès.']);
     }
 }
