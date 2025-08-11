@@ -17,7 +17,7 @@ describe('UserController', function (): void {
             ]);
 
             $response->assertStatus(200)
-                ->assertJson(['message' => 'Password updated successfully.']);
+                ->assertJson(['message' => 'Mot de passe mis à jour avec succès.']);
 
             $user->refresh();
             expect(Hash::check('new_password123', $user->password))->toBeTrue();

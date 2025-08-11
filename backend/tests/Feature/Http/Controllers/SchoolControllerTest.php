@@ -26,7 +26,7 @@ describe('SchoolController', function (): void {
             ]);
 
             $response->assertStatus(200)
-                ->assertJson(['message' => 'School updated successfully.']);
+                ->assertJson(['message' => 'École mise à jour avec succès.']);
 
             $school->refresh();
             expect($school->name)->toBe('New School Name')
@@ -141,7 +141,7 @@ describe('SchoolController', function (): void {
             ]);
 
             $response->assertStatus(200)
-                ->assertJson(['message' => 'School updated successfully.']);
+                ->assertJson(['message' => 'École mise à jour avec succès.']);
 
             $response = $this->patchJson(route('school.update', $school), [
                 'address' => 'Only Address Updated',

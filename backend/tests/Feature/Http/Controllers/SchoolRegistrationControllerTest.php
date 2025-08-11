@@ -18,7 +18,7 @@ describe('SchoolRegistrationController', function (): void {
             ]);
 
             $response->assertStatus(200)
-                ->assertJson(['message' => 'Invitation sent successfully.']);
+                ->assertJson(['message' => 'Invitation envoyée avec succès.']);
 
             Mail::assertSent(App\Mail\SchoolInvitationMail::class);
         });
@@ -59,7 +59,7 @@ describe('SchoolRegistrationController', function (): void {
             ]);
 
             $response->assertStatus(500)
-                ->assertJson(['message' => 'Failed to send invitation email: Mail server error']);
+                ->assertJson(['message' => 'Échec de l\'envoi de l\'invitation : Mail server error']);
         });
     });
 
@@ -97,7 +97,7 @@ describe('SchoolRegistrationController', function (): void {
                 ->assertRedirect()
                 ->assertRedirectContains('status=error')
                 ->assertRedirectContains(http_build_query([
-                    'message' => 'Invalid or expired invitation link.',
+                    'message' => 'Lien d\'invitation invalide ou expiré.',
                 ]));
         });
 
@@ -115,7 +115,7 @@ describe('SchoolRegistrationController', function (): void {
                 ->assertRedirect()
                 ->assertRedirectContains('status=error')
                 ->assertRedirectContains(http_build_query([
-                    'message' => 'Invalid or expired invitation link.',
+                    'message' => 'Lien d\'invitation invalide ou expiré.',
                 ]));
         });
 
@@ -133,7 +133,7 @@ describe('SchoolRegistrationController', function (): void {
             $response->assertStatus(302)
                 ->assertRedirect()
                 ->assertRedirectContains('status=error')
-                ->assertRedirectContains('Failed+to+confirm+school+registration');
+                ->assertRedirectContains('%C3%89chec+de+la+confirmation+d%27inscription');
         });
 
     });
@@ -150,7 +150,7 @@ describe('SchoolRegistrationController', function (): void {
             ]);
 
             $response->assertStatus(200)
-                ->assertJson(['message' => 'Password reset successfully.']);
+                ->assertJson(['message' => 'Mot de passe réinitialisé avec succès.']);
 
             $user->refresh();
             expect(Hash::check('new_password123', $user->password))->toBeTrue();

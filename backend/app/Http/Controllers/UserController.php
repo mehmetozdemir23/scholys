@@ -33,9 +33,7 @@ final class UserController extends Controller
      */
     public function updatePassword(UpdateUserPasswordRequest $request): JsonResponse
     {
-        $user = auth()->user();
-
-        $user->update([
+        $request->user()->update([
             'password' => bcrypt($request->input('new_password')),
         ]);
 
