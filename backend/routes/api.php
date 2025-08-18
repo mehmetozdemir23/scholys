@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::name('users.')->prefix('/users')->group(function (): void {
         Route::post('', [UserController::class, 'store'])->name('store');
+        Route::patch('{user}', [UserController::class, 'update'])->name('update');
     });
 
     Route::post('user/password', [UserController::class, 'updatePassword'])

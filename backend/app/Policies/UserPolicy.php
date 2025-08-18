@@ -13,4 +13,9 @@ final class UserPolicy
     {
         return $user->hasRole(Role::SUPER_ADMIN);
     }
+
+    public function update(User $user): bool
+    {
+        return $user->hasRole(Role::SUPER_ADMIN);
+    }
 }
