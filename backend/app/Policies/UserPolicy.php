@@ -18,4 +18,9 @@ final class UserPolicy
     {
         return $user->hasRole(Role::SUPER_ADMIN);
     }
+
+    public function import(User $user): bool
+    {
+        return $user->hasRole(Role::SUPER_ADMIN);
+    }
 }

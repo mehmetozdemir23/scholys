@@ -7,14 +7,11 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-final class UpdateUserRequest extends FormRequest
+final class ImportUserRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return $this->user()->can('update', User::class);
+        return $this->user()->can('import', User::class);
     }
 
     /**
@@ -25,9 +22,7 @@ final class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'firstname' => ['sometimes', 'required', 'string', 'max:255'],
-            'lastname' => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => ['sometimes', 'required', 'email', 'unique:users,email'],
+            'users' => ['required', 'file', 'mimes:csv,txt', 'max:10240'],
         ];
     }
 }

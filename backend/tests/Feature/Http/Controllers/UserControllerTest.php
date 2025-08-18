@@ -118,8 +118,8 @@ describe('UserController', function (): void {
 
             $targetUser->refresh();
             expect($targetUser->firstname)->toBe('Jane')
-                ->and($targetUser->lastname)->toBe('Doe') // unchanged
-                ->and($targetUser->email)->toBe('john.doe@example.com'); // unchanged
+                ->and($targetUser->lastname)->toBe('Doe')
+                ->and($targetUser->email)->toBe('john.doe@example.com');
         });
 
         test('requires authentication', function (): void {
