@@ -15,9 +15,6 @@ use Illuminate\Http\JsonResponse;
 
 final class UserController extends Controller
 {
-    /**
-     * Search and filter users
-     */
     public function search(SearchUserRequest $request, SearchUsers $searchUsers): JsonResponse
     {
         $filters = $request->validated();
@@ -28,9 +25,6 @@ final class UserController extends Controller
         return response()->json($users);
     }
 
-    /**
-     * Create a user
-     */
     public function store(StoreUserRequest $request, CreateUser $createUser): JsonResponse
     {
         $attributes = $request->validated();
@@ -55,9 +49,6 @@ final class UserController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's password.
-     */
     public function updatePassword(UpdateUserPasswordRequest $request): JsonResponse
     {
         $request->user()->update([
