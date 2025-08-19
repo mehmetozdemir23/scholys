@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\CreateUser;
+use App\Actions\SearchUsers;
+use App\Http\Requests\SearchUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -13,6 +15,19 @@ use Illuminate\Http\JsonResponse;
 
 final class UserController extends Controller
 {
+    /**
+     * Search and filter users
+     */
+    public function search(SearchUserRequest $request, SearchUsers $searchUsers): JsonResponse
+    {
+        $filters = $request->validated();
+        $schoolId = $request->user()->school_id;
+
+        $users = $searchUsers->handle($filters, $schoolId);
+
+        return response()->json($users);
+    }
+
     /**
      * Create a user
      */

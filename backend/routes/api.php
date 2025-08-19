@@ -20,6 +20,7 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::name('users.')->prefix('/users')->group(function (): void {
+        Route::get('search', [UserController::class, 'search'])->name('search');
         Route::post('', [UserController::class, 'store'])->name('store');
         Route::patch('{user}', [UserController::class, 'update'])->name('update');
         Route::post('import', ImportUserController::class);

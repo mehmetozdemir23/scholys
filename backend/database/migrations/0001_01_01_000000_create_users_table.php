@@ -23,6 +23,11 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index(['school_id', 'firstname']);
+            $table->index(['school_id', 'lastname']);
+            $table->index(['school_id', 'email']);
+            $table->index(['school_id', 'created_at']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table): void {

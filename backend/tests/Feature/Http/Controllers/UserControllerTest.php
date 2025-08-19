@@ -229,4 +229,207 @@ describe('UserController', function (): void {
                 ->assertJsonValidationErrors(['email']);
         });
     });
+
+    describe('search', function (): void {
+        test('returns paginated users for authenticated user school', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+            User::factory()->count(3)->create(['school_id' => $school->id]);
+            User::factory()->count(2)->create();
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search'));
+
+            $response->assertStatus(200)
+                ->assertJsonStructure([
+                    'data' => [
+                        '*' => ['id', 'firstname', 'lastname', 'email', 'roles'],
+                    ],
+                    'total',
+                    'per_page',
+                    'current_page',
+                ]);
+
+            expect($response->json('total'))->toBe(4);
+        });
+
+        test('filters users by search term', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+
+            User::factory()->create([
+                'school_id' => $school->id,
+                'firstname' => 'Alice',
+                'lastname' => 'Wonder',
+                'email' => 'alice@example.com',
+            ]);
+            User::factory()->create([
+                'school_id' => $school->id,
+                'firstname' => 'Bob',
+                'lastname' => 'Builder',
+                'email' => 'bob@example.com',
+            ]);
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search', ['q' => 'Alice']));
+
+            $response->assertStatus(200);
+            expect($response->json('total'))->toBe(1)
+                ->and($response->json('data.0.firstname'))->toBe('Alice');
+        });
+
+        test('filters users by role', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+            $adminRole = Role::factory()->create(['name' => 'admin']);
+
+            $adminUser = User::factory()->create(['school_id' => $school->id]);
+            $regularUser = User::factory()->create(['school_id' => $school->id]);
+
+            $adminUser->roles()->attach($adminRole);
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search', ['role' => 'admin']));
+
+            $response->assertStatus(200);
+            expect($response->json('total'))->toBe(1);
+        });
+
+        test('sorts users by specified field and order', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+
+            User::factory()->create([
+                'school_id' => $school->id,
+                'firstname' => 'Zoe',
+            ]);
+            User::factory()->create([
+                'school_id' => $school->id,
+                'firstname' => 'Alice',
+            ]);
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search', [
+                'sort_by' => 'firstname',
+                'sort_order' => 'asc',
+            ]));
+
+            $response->assertStatus(200);
+            $users = $response->json('data');
+            expect($users[0]['firstname'])->toBe('Alice');
+        });
+
+        test('respects pagination parameters', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+            User::factory()->count(10)->create(['school_id' => $school->id]);
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search', [
+                'per_page' => 5,
+                'page' => 1,
+            ]));
+
+            $response->assertStatus(200);
+            expect($response->json('per_page'))->toBe(5)
+                ->and($response->json('current_page'))->toBe(1)
+                ->and($response->json('data'))->toHaveCount(5);
+        });
+
+        test('combines multiple filters', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+            $adminRole = Role::factory()->create(['name' => 'admin']);
+
+            $adminAlice = User::factory()->create([
+                'school_id' => $school->id,
+                'firstname' => 'Alice',
+                'lastname' => 'Admin',
+            ]);
+            $userAlice = User::factory()->create([
+                'school_id' => $school->id,
+                'firstname' => 'Alice',
+                'lastname' => 'User',
+            ]);
+
+            $adminAlice->roles()->attach($adminRole);
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search', [
+                'q' => 'Alice',
+                'role' => 'admin',
+            ]));
+
+            $response->assertStatus(200);
+            expect($response->json('total'))->toBe(1)
+                ->and($response->json('data.0.firstname'))->toBe('Alice')
+                ->and($response->json('data.0.lastname'))->toBe('Admin');
+        });
+
+        test('returns empty results when no matches found', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search', ['q' => 'NonExistent']));
+
+            $response->assertStatus(200);
+            expect($response->json('total'))->toBe(0)
+                ->and($response->json('data'))->toHaveCount(0);
+        });
+
+        test('only returns users from same school', function (): void {
+            $school1 = School::factory()->create();
+            $school2 = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school1->id]);
+
+            User::factory()->count(2)->create(['school_id' => $school1->id]);
+            User::factory()->count(3)->create(['school_id' => $school2->id]);
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search'));
+
+            $response->assertStatus(200);
+            expect($response->json('total'))->toBe(3);
+        });
+
+        test('requires authentication', function (): void {
+            $response = $this->getJson(route('users.search'));
+
+            $response->assertStatus(401);
+        });
+
+        test('validates search parameters', function (): void {
+            $user = User::factory()->create();
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search', [
+                'sort_by' => 'invalid_field',
+                'sort_order' => 'invalid_order',
+                'per_page' => 101,
+            ]));
+
+            $response->assertStatus(422)
+                ->assertJsonValidationErrors(['sort_by', 'sort_order', 'per_page']);
+        });
+
+        test('includes user roles in response', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+            $role = Role::factory()->create(['name' => 'test-role']);
+
+            $targetUser = User::factory()->create(['school_id' => $school->id]);
+            $targetUser->roles()->attach($role);
+
+            $this->actingAs($user);
+            $response = $this->getJson(route('users.search'));
+
+            $response->assertStatus(200);
+            $userData = collect($response->json('data'))
+                ->firstWhere('id', $targetUser->id);
+
+            expect($userData['roles'])->toHaveCount(1)
+                ->and($userData['roles'][0]['name'])->toBe('test-role');
+        });
+    });
 });
