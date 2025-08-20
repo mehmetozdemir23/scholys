@@ -2,26 +2,29 @@
 
 declare(strict_types=1);
 
+use App\Jobs\ImportUsers;
 use App\Models\Role;
 use App\Models\School;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
 describe('ImportUserController', function (): void {
     beforeEach(function (): void {
         Mail::fake();
+        Queue::fake();
         Storage::fake('local');
     });
 
-    test('imports users successfully with valid CSV file', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
+    test('dispatches import job with valid CSV file', function (): void {
+        $role = Role::create(['name' => 'super_admin']);
         $school = School::factory()->create();
         $adminUser = User::factory()->create(['school_id' => $school->id]);
         $adminUser->roles()->attach($role);
 
-        $csvContent = "firstname,lastname,email\nJohn,Doe,john@example.com\nJane,Smith,jane@example.com";
+        $csvContent = "firstname,lastname,email,role\nJohn,Doe,john@example.com,teacher\nJane,Smith,jane@example.com,staff";
         $file = UploadedFile::fake()->createWithContent('users.csv', $csvContent);
 
         $this->actingAs($adminUser);
@@ -30,30 +33,21 @@ describe('ImportUserController', function (): void {
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure([
-                'message',
-                'success_count',
-                'error_count',
-                'errors',
-            ])
             ->assertJson([
-                'success_count' => 2,
-                'error_count' => 0,
+                'message' => 'Import des utilisateurs en cours. Vous recevrez une notification une fois terminé.',
+                'status' => 'processing',
             ]);
 
-        $this->assertDatabaseHas('users', ['email' => 'john@example.com']);
-        $this->assertDatabaseHas('users', ['email' => 'jane@example.com']);
+        Queue::assertPushed(ImportUsers::class);
     });
 
-    test('handles partial import with some errors', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
+    test('dispatches import job even with validation errors in CSV', function (): void {
+        $role = Role::create(['name' => 'super_admin']);
         $school = School::factory()->create();
         $adminUser = User::factory()->create(['school_id' => $school->id]);
         $adminUser->roles()->attach($role);
 
-        User::factory()->create(['email' => 'existing@example.com']);
-
-        $csvContent = "firstname,lastname,email\nJohn,Doe,john@example.com\nJane,Smith,existing@example.com";
+        $csvContent = "firstname,lastname,email,role\nJohn,Doe,john@example.com,teacher\nJane,Smith,invalid-email,staff";
         $file = UploadedFile::fake()->createWithContent('users.csv', $csvContent);
 
         $this->actingAs($adminUser);
@@ -63,16 +57,15 @@ describe('ImportUserController', function (): void {
 
         $response->assertStatus(200)
             ->assertJson([
-                'success_count' => 1,
-                'error_count' => 1,
+                'message' => 'Import des utilisateurs en cours. Vous recevrez une notification une fois terminé.',
+                'status' => 'processing',
             ]);
 
-        $this->assertDatabaseHas('users', ['email' => 'john@example.com']);
-        expect($response->json('errors'))->toHaveCount(1);
+        Queue::assertPushed(ImportUsers::class);
     });
 
     test('requires authentication', function (): void {
-        $csvContent = "firstname,lastname,email\nJohn,Doe,john@example.com";
+        $csvContent = "firstname,lastname,email,role\nJohn,Doe,john@example.com,teacher";
         $file = UploadedFile::fake()->createWithContent('users.csv', $csvContent);
 
         $response = $this->postJson('/api/users/import', [
@@ -86,7 +79,7 @@ describe('ImportUserController', function (): void {
         $school = School::factory()->create();
         $regularUser = User::factory()->create(['school_id' => $school->id]);
 
-        $csvContent = "firstname,lastname,email\nJohn,Doe,john@example.com";
+        $csvContent = "firstname,lastname,email,role\nJohn,Doe,john@example.com,teacher";
         $file = UploadedFile::fake()->createWithContent('users.csv', $csvContent);
 
         $this->actingAs($regularUser);
@@ -98,7 +91,7 @@ describe('ImportUserController', function (): void {
     });
 
     test('validates file is required', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
+        $role = Role::create(['name' => 'super_admin']);
         $school = School::factory()->create();
         $adminUser = User::factory()->create(['school_id' => $school->id]);
         $adminUser->roles()->attach($role);
@@ -111,7 +104,7 @@ describe('ImportUserController', function (): void {
     });
 
     test('validates file type is CSV or TXT', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
+        $role = Role::create(['name' => 'super_admin']);
         $school = School::factory()->create();
         $adminUser = User::factory()->create(['school_id' => $school->id]);
         $adminUser->roles()->attach($role);
@@ -128,7 +121,7 @@ describe('ImportUserController', function (): void {
     });
 
     test('validates file size limit', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
+        $role = Role::create(['name' => 'super_admin']);
         $school = School::factory()->create();
         $adminUser = User::factory()->create(['school_id' => $school->id]);
         $adminUser->roles()->attach($role);
@@ -144,13 +137,13 @@ describe('ImportUserController', function (): void {
             ->assertJsonValidationErrors(['users']);
     });
 
-    test('handles empty CSV file', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
+    test('dispatches job with empty CSV file', function (): void {
+        $role = Role::create(['name' => 'super_admin']);
         $school = School::factory()->create();
         $adminUser = User::factory()->create(['school_id' => $school->id]);
         $adminUser->roles()->attach($role);
 
-        $csvContent = "firstname,lastname,email\n";
+        $csvContent = "firstname,lastname,email,role\n";
         $file = UploadedFile::fake()->createWithContent('users.csv', $csvContent);
 
         $this->actingAs($adminUser);
@@ -160,18 +153,23 @@ describe('ImportUserController', function (): void {
 
         $response->assertStatus(200)
             ->assertJson([
-                'success_count' => 0,
-                'error_count' => 0,
+                'message' => 'Import des utilisateurs en cours. Vous recevrez une notification une fois terminé.',
+                'status' => 'processing',
             ]);
+
+        Queue::assertPushed(ImportUsers::class);
     });
 
-    test('handles CSV with missing required fields', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
+    test('validates required role field in CSV', function (): void {
+        Role::create(['name' => 'teacher']);
+        Role::create(['name' => 'staff']);
+
+        $role = Role::create(['name' => 'super_admin']);
         $school = School::factory()->create();
         $adminUser = User::factory()->create(['school_id' => $school->id]);
         $adminUser->roles()->attach($role);
 
-        $csvContent = "firstname,lastname,email\nJohn,,john@example.com";
+        $csvContent = "firstname,lastname,email,role\nJohn,Doe,john@example.com,teacher\nJane,Smith,jane@example.com,invalid_role";
         $file = UploadedFile::fake()->createWithContent('users.csv', $csvContent);
 
         $this->actingAs($adminUser);
@@ -181,34 +179,10 @@ describe('ImportUserController', function (): void {
 
         $response->assertStatus(200)
             ->assertJson([
-                'success_count' => 0,
-                'error_count' => 1,
+                'message' => 'Import des utilisateurs en cours. Vous recevrez une notification une fois terminé.',
+                'status' => 'processing',
             ]);
 
-        expect($response->json('errors'))->toHaveCount(1);
-    });
-
-    test('skips empty lines in CSV', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
-        $school = School::factory()->create();
-        $adminUser = User::factory()->create(['school_id' => $school->id]);
-        $adminUser->roles()->attach($role);
-
-        $csvContent = "firstname,lastname,email\nJohn,Doe,john@example.com\n\n\nJane,Smith,jane@example.com";
-        $file = UploadedFile::fake()->createWithContent('users.csv', $csvContent);
-
-        $this->actingAs($adminUser);
-        $response = $this->postJson('/api/users/import', [
-            'users' => $file,
-        ]);
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'success_count' => 2,
-                'error_count' => 0,
-            ]);
-
-        $this->assertDatabaseHas('users', ['email' => 'john@example.com']);
-        $this->assertDatabaseHas('users', ['email' => 'jane@example.com']);
+        Queue::assertPushed(ImportUsers::class);
     });
 });

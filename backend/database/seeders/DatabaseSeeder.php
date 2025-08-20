@@ -14,6 +14,6 @@ final class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::create(['name' => Role::SUPER_ADMIN]);
+        Role::create(['name' => 'super_admin']);
     }
 }

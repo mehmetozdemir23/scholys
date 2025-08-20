@@ -13,5 +13,10 @@ final class Role extends Model
     /** @use HasFactory<\Database\Factories\RoleFactory> */
     use HasFactory, HasUuids;
 
-    public const string SUPER_ADMIN = 'super_admin';
+    public const array ROLE_NAMES = [
+        'super_admin' => 'Super Administrateur',
+        'admin' => 'Administrateur',
+        'teacher' => 'Enseignant',
+        'staff' => 'Personnel',
+    ];
 }

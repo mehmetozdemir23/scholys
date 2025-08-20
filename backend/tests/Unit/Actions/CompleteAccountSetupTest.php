@@ -10,7 +10,7 @@ use Illuminate\Routing\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Facades\URL;
 
 test('handles account creation with temporary password', function (): void {
-    Role::create(['name' => Role::SUPER_ADMIN]);
+    Role::create(['name' => 'super_admin']);
 
     $email = 'admin@school.com';
     $url = URL::temporarySignedRoute(
@@ -32,7 +32,7 @@ test('handles account creation with temporary password', function (): void {
 
     $user = User::find($result['user_id']);
     expect($user->email)->toBe($email)
-        ->and($user->hasRole(Role::SUPER_ADMIN))->toBeTrue()
+        ->and($user->hasRole('super_admin'))->toBeTrue()
         ->and($user->password)->not->toBeNull()
         ->and(mb_strlen($user->password))->toBeGreaterThan(50);
 });

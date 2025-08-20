@@ -65,7 +65,7 @@ describe('SchoolRegistrationController', function (): void {
 
     describe('completeAccountSetup', function (): void {
         test('redirects to frontend on successful account setup', function (): void {
-            Role::create(['name' => Role::SUPER_ADMIN]);
+            Role::create(['name' => 'super_admin']);
 
             $email = 'admin@school.com';
             $url = URL::temporarySignedRoute(

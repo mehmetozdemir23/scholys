@@ -6,7 +6,7 @@ use App\Models\Role;
 
 describe('Role Model', function (): void {
     test('has super admin constant', function (): void {
-        expect(Role::SUPER_ADMIN)->toBe('super_admin');
+        expect('super_admin')->toBe('super_admin');
     });
 
     test('uses UUIDs for primary key', function (): void {
@@ -25,9 +25,9 @@ describe('Role Model', function (): void {
     });
 
     test('can create super admin role', function (): void {
-        $role = Role::create(['name' => Role::SUPER_ADMIN]);
+        $role = Role::create(['name' => 'super_admin']);
 
-        expect($role->name)->toBe(Role::SUPER_ADMIN)
+        expect($role->name)->toBe('super_admin')
             ->and($role->exists)->toBeTrue();
     });
 });

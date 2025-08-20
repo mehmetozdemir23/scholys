@@ -9,7 +9,7 @@ use App\Models\User;
 describe('SchoolController', function (): void {
     describe('update', function (): void {
         test('updates school successfully with valid data', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create([
                 'name' => 'Old School Name',
                 'address' => 'Old Address',
@@ -47,7 +47,7 @@ describe('SchoolController', function (): void {
         });
 
         test('validates required fields when provided but empty', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $user = User::factory()->create(['school_id' => $school->id]);
             $user->roles()->attach($role);
@@ -63,7 +63,7 @@ describe('SchoolController', function (): void {
         });
 
         test('validates name maximum length', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $user = User::factory()->create(['school_id' => $school->id]);
             $user->roles()->attach($role);
@@ -79,7 +79,7 @@ describe('SchoolController', function (): void {
         });
 
         test('validates address maximum length', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $user = User::factory()->create(['school_id' => $school->id]);
             $user->roles()->attach($role);
@@ -95,7 +95,7 @@ describe('SchoolController', function (): void {
         });
 
         test('validates contact_email format when provided', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $user = User::factory()->create(['school_id' => $school->id]);
             $user->roles()->attach($role);
@@ -112,7 +112,7 @@ describe('SchoolController', function (): void {
         });
 
         test('validates contact_phone maximum length when provided', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $user = User::factory()->create(['school_id' => $school->id]);
             $user->roles()->attach($role);
@@ -129,7 +129,7 @@ describe('SchoolController', function (): void {
         });
 
         test('allows partial updates and nullable fields', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $user = User::factory()->create(['school_id' => $school->id]);
             $user->roles()->attach($role);
@@ -164,7 +164,7 @@ describe('SchoolController', function (): void {
         });
 
         test('denies access to user from different school', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school1 = School::factory()->create();
             $school2 = School::factory()->create();
             $user = User::factory()->create(['school_id' => $school1->id]);

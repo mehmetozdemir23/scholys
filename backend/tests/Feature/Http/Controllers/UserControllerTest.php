@@ -15,7 +15,7 @@ uses(RefreshDatabase::class);
 function createSuperAdmin(): User
 {
     $school = School::factory()->create();
-    $superAdminRole = Role::factory()->create(['name' => Role::SUPER_ADMIN]);
+    $superAdminRole = Role::factory()->create(['name' => 'super_admin']);
     $admin = User::factory()->create(['school_id' => $school->id]);
     $admin->roles()->attach($superAdminRole);
 
@@ -318,7 +318,7 @@ describe('UserController', function (): void {
 
     describe('update', function (): void {
         test('updates user successfully with valid data', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $adminUser = User::factory()->create(['school_id' => $school->id]);
             $targetUser = User::factory()->create([
@@ -346,7 +346,7 @@ describe('UserController', function (): void {
         });
 
         test('allows partial updates', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $adminUser = User::factory()->create(['school_id' => $school->id]);
             $targetUser = User::factory()->create([
@@ -394,7 +394,7 @@ describe('UserController', function (): void {
         });
 
         test('validates firstname when provided', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $adminUser = User::factory()->create(['school_id' => $school->id]);
             $targetUser = User::factory()->create(['school_id' => $school->id]);
@@ -410,7 +410,7 @@ describe('UserController', function (): void {
         });
 
         test('validates firstname maximum length', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $adminUser = User::factory()->create(['school_id' => $school->id]);
             $targetUser = User::factory()->create(['school_id' => $school->id]);
@@ -426,7 +426,7 @@ describe('UserController', function (): void {
         });
 
         test('validates lastname when provided', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $adminUser = User::factory()->create(['school_id' => $school->id]);
             $targetUser = User::factory()->create(['school_id' => $school->id]);
@@ -442,7 +442,7 @@ describe('UserController', function (): void {
         });
 
         test('validates email format when provided', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $adminUser = User::factory()->create(['school_id' => $school->id]);
             $targetUser = User::factory()->create(['school_id' => $school->id]);
@@ -458,7 +458,7 @@ describe('UserController', function (): void {
         });
 
         test('validates email uniqueness when provided', function (): void {
-            $role = Role::create(['name' => Role::SUPER_ADMIN]);
+            $role = Role::create(['name' => 'super_admin']);
             $school = School::factory()->create();
             $adminUser = User::factory()->create(['school_id' => $school->id]);
             $targetUser = User::factory()->create(['school_id' => $school->id]);

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Models\Role;
 use App\Models\School;
 use App\Models\User;
 use Exception;
@@ -42,7 +41,7 @@ final class CompleteAccountSetup
                 'school_id' => $school->id,
                 'password' => bcrypt(Str::random(32)),
             ]);
-            $user->assignRole(Role::SUPER_ADMIN);
+            $user->assignRole('super_admin');
         });
 
         /** @var User $user */

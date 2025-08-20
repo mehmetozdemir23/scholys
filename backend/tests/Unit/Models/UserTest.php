@@ -78,11 +78,11 @@ describe('User Model', function (): void {
     describe('assignRole method', function () {
         test('assigns existing role to user', function (): void {
             $user = User::factory()->create();
-            Role::create(['name' => Role::SUPER_ADMIN]);
+            Role::create(['name' => 'super_admin']);
 
-            $user->assignRole(Role::SUPER_ADMIN);
+            $user->assignRole('super_admin');
 
-            expect($user->roles->pluck('name'))->toContain(Role::SUPER_ADMIN);
+            expect($user->roles->pluck('name'))->toContain('super_admin');
         });
 
         test('throws exception for non-existent role', function (): void {
@@ -94,10 +94,10 @@ describe('User Model', function (): void {
 
         test('does not create duplicates when assigning same role twice', function (): void {
             $user = User::factory()->create();
-            Role::create(['name' => Role::SUPER_ADMIN]);
+            Role::create(['name' => 'super_admin']);
 
-            $user->assignRole(Role::SUPER_ADMIN);
-            $user->assignRole(Role::SUPER_ADMIN);
+            $user->assignRole('super_admin');
+            $user->assignRole('super_admin');
 
             expect($user->roles)->toHaveCount(1);
         });
@@ -106,17 +106,17 @@ describe('User Model', function (): void {
     describe('hasRole method', function () {
         test('returns true for assigned role', function (): void {
             $user = User::factory()->create();
-            Role::create(['name' => Role::SUPER_ADMIN]);
-            $user->assignRole(Role::SUPER_ADMIN);
+            Role::create(['name' => 'super_admin']);
+            $user->assignRole('super_admin');
 
-            expect($user->hasRole(Role::SUPER_ADMIN))->toBeTrue();
+            expect($user->hasRole('super_admin'))->toBeTrue();
         });
 
         test('returns false for unassigned role', function (): void {
             $user = User::factory()->create();
-            Role::create(['name' => Role::SUPER_ADMIN]);
+            Role::create(['name' => 'super_admin']);
 
-            expect($user->hasRole(Role::SUPER_ADMIN))->toBeFalse();
+            expect($user->hasRole('super_admin'))->toBeFalse();
         });
 
         test('returns false for non-existent role', function (): void {
