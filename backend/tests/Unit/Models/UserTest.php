@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\ClassGroup;
 use App\Models\Role;
 use App\Models\School;
 use App\Models\User;
@@ -72,6 +73,46 @@ describe('User Model', function (): void {
             expect($user->roles)->toHaveCount(1)
                 ->and($user->roles->first())->toBeInstanceOf(Role::class)
                 ->and($user->roles->first()->id)->toBe($role->id);
+        });
+    });
+
+    describe('classGroups relationship', function () {
+        test('has many class groups', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+            $classGroup1 = ClassGroup::factory()->create(['school_id' => $school->id]);
+            $classGroup2 = ClassGroup::factory()->create(['school_id' => $school->id]);
+
+            $user->classGroups()->attach([$classGroup1->id, $classGroup2->id], ['assigned_at' => now()]);
+
+            expect($user->classGroups)->toHaveCount(2)
+                ->and($user->classGroups->first())->toBeInstanceOf(ClassGroup::class);
+        });
+
+        test('class groups relationship includes pivot data', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+            $classGroup = ClassGroup::factory()->create(['school_id' => $school->id]);
+
+            $user->classGroups()->attach($classGroup->id, ['assigned_at' => now()]);
+
+            $pivotData = $user->classGroups->first()->pivot;
+            expect($pivotData->assigned_at)->not->toBeNull();
+            expect($pivotData->created_at)->not->toBeNull();
+            expect($pivotData->updated_at)->not->toBeNull();
+        });
+
+        test('class groups relationship uses correct pivot table', function (): void {
+            $school = School::factory()->create();
+            $user = User::factory()->create(['school_id' => $school->id]);
+            $classGroup = ClassGroup::factory()->create(['school_id' => $school->id]);
+
+            $user->classGroups()->attach($classGroup->id, ['assigned_at' => now()]);
+
+            $this->assertDatabaseHas('class_group_user', [
+                'user_id' => $user->id,
+                'class_group_id' => $classGroup->id,
+            ]);
         });
     });
 

@@ -6,11 +6,8 @@ use App\Mail\UserWelcomeMail;
 use App\Models\Role;
 use App\Models\School;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-
-uses(RefreshDatabase::class);
 
 function createSuperAdmin(): User
 {

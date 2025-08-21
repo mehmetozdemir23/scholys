@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ClassGroupController;
 use App\Http\Controllers\ImportUserController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolRegistrationController;
@@ -34,5 +35,24 @@ Route::middleware('auth:sanctum')->group(function (): void {
             ->name('registration.reset-password');
         Route::patch('{school}', [SchoolController::class, 'update'])
             ->name('update');
+    });
+
+    Route::name('class-groups.')->prefix('/class-groups')->group(function (): void {
+        Route::get('', [ClassGroupController::class, 'index'])->name('index');
+        Route::post('', [ClassGroupController::class, 'store'])->name('store');
+        Route::get('stats', [ClassGroupController::class, 'stats'])->name('stats');
+        Route::get('{classGroup}', [ClassGroupController::class, 'show'])->name('show');
+        Route::patch('{classGroup}', [ClassGroupController::class, 'update'])->name('update');
+        Route::delete('{classGroup}', [ClassGroupController::class, 'destroy'])->name('destroy');
+
+        Route::name('students.')->prefix('{classGroup}/students')->group(function (): void {
+            Route::post('{user}', [ClassGroupController::class, 'assignStudent'])->name('assign');
+            Route::delete('{user}', [ClassGroupController::class, 'removeStudent'])->name('remove');
+        });
+
+        Route::name('teachers.')->prefix('{classGroup}/teachers')->group(function (): void {
+            Route::post('{user}', [ClassGroupController::class, 'assignTeacher'])->name('assign');
+            Route::delete('{user}', [ClassGroupController::class, 'removeTeacher'])->name('remove');
+        });
     });
 });

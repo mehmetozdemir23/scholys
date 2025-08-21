@@ -69,6 +69,18 @@ final class User extends Authenticatable
     }
 
     /**
+     * Get the class groups that the user belongs to.
+     *
+     * @return BelongsToMany<ClassGroup, $this>
+     */
+    public function classGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(ClassGroup::class, 'class_group_user')
+            ->withTimestamps()
+            ->withPivot('assigned_at');
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
