@@ -80,6 +80,12 @@ final class User extends Authenticatable
             ->withPivot('assigned_at');
     }
 
+    /** @return BelongsToMany<Subject, $this> */
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

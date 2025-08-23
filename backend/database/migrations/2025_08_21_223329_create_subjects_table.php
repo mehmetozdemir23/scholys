@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('class_group_user', function (Blueprint $table): void {
-            $table->foreignUuid('class_group_id')->constrained();
-            $table->foreignUuid('user_id')->constrained();
-            $table->date('assigned_at');
+        Schema::create('subjects', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('school_id')->constrained();
+            $table->string('name');
             $table->timestamps();
 
-            $table->unique(['class_group_id', 'user_id']);
-            $table->index(['user_id']);
+            $table->index(['school_id', 'name']);
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('class_group_user');
+        Schema::dropIfExists('subjects');
     }
 };

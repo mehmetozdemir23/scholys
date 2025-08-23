@@ -9,15 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-function createSuperAdmin(): User
-{
-    $school = School::factory()->create();
-    $superAdminRole = Role::factory()->create(['name' => 'super_admin']);
-    $admin = User::factory()->create(['school_id' => $school->id]);
-    $admin->roles()->attach($superAdminRole);
-
-    return $admin;
-}
+require_once __DIR__.'/../../../Helpers/TestHelpers.php';
 
 describe('UserController', function (): void {
     describe('store', function (): void {

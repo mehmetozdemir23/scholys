@@ -7,38 +7,12 @@ use App\Models\Role;
 use App\Models\School;
 use App\Models\User;
 
-function createSuperAdminForClassGroup(): User
-{
-    $school = School::factory()->create();
-    $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
-    $admin = User::factory()->create(['school_id' => $school->id]);
-    $admin->roles()->attach($superAdminRole);
-
-    return $admin;
-}
-
-function createStudentForSchool(string $schoolId): User
-{
-    $studentRole = Role::firstOrCreate(['name' => 'student']);
-    $student = User::factory()->create(['school_id' => $schoolId]);
-    $student->roles()->attach($studentRole);
-
-    return $student;
-}
-
-function createTeacherForSchool(string $schoolId): User
-{
-    $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
-    $teacher = User::factory()->create(['school_id' => $schoolId]);
-    $teacher->roles()->attach($teacherRole);
-
-    return $teacher;
-}
+require_once __DIR__.'/../../../Helpers/TestHelpers.php';
 
 describe('ClassGroupController', function (): void {
     describe('index', function (): void {
         test('authenticated user can list class groups for their school', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $otherSchool = School::factory()->create();
 
             ClassGroup::factory()->create([
@@ -61,7 +35,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('can filter class groups by search term', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
@@ -83,7 +57,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('can filter class groups by level', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
@@ -107,7 +81,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('can filter class groups by academic year', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
@@ -131,7 +105,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('can filter class groups by active status true', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
@@ -155,7 +129,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('can filter class groups by active status false', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
@@ -179,7 +153,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('validates invalid sort field', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
@@ -197,7 +171,7 @@ describe('ClassGroupController', function (): void {
 
     describe('store', function (): void {
         test('admin can create a class group successfully', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             $classGroupData = [
                 'name' => 'Classe de 6e A',
@@ -224,7 +198,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('class group name is required', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             $response = $this->actingAs($admin)
                 ->postJson('/api/class-groups', [
@@ -238,7 +212,7 @@ describe('ClassGroupController', function (): void {
 
     describe('show', function (): void {
         test('admin can view a class group from their school', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
                 'name' => 'Test Class',
@@ -269,7 +243,7 @@ describe('ClassGroupController', function (): void {
 
     describe('update', function (): void {
         test('admin can update a class group', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
                 'name' => 'Original Name',
@@ -294,7 +268,7 @@ describe('ClassGroupController', function (): void {
 
     describe('destroy', function (): void {
         test('admin can delete a class group', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
@@ -313,12 +287,12 @@ describe('ClassGroupController', function (): void {
 
     describe('assignStudent', function (): void {
         test('admin can assign a student to a class group', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
                 'max_students' => 30,
             ]);
-            $student = createStudentForSchool($admin->school_id);
+            $student = createStudent($admin->school_id);
 
             $response = $this->actingAs($admin)
                 ->postJson("/api/class-groups/{$classGroup->id}/students/{$student->id}");
@@ -333,13 +307,13 @@ describe('ClassGroupController', function (): void {
         });
 
         test('cannot assign student when class is full', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
                 'max_students' => 1,
             ]);
-            $student1 = createStudentForSchool($admin->school_id);
-            $student2 = createStudentForSchool($admin->school_id);
+            $student1 = createStudent($admin->school_id);
+            $student2 = createStudent($admin->school_id);
 
             $classGroup->students()->attach($student1->id, ['assigned_at' => now()]);
 
@@ -351,11 +325,11 @@ describe('ClassGroupController', function (): void {
         });
 
         test('cannot assign non-student user', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $teacher = createTeacherForSchool($admin->school_id);
+            $teacher = createTeacher($admin->school_id);
 
             $response = $this->actingAs($admin)
                 ->postJson("/api/class-groups/{$classGroup->id}/students/{$teacher->id}");
@@ -365,12 +339,12 @@ describe('ClassGroupController', function (): void {
         });
 
         test('cannot assign student from different school', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $otherSchool = School::factory()->create();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $student = createStudentForSchool($otherSchool->id);
+            $student = createStudent($otherSchool->id);
 
             $response = $this->actingAs($admin)
                 ->postJson("/api/class-groups/{$classGroup->id}/students/{$student->id}");
@@ -380,11 +354,11 @@ describe('ClassGroupController', function (): void {
         });
 
         test('cannot assign student already in class', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $student = createStudentForSchool($admin->school_id);
+            $student = createStudent($admin->school_id);
 
             $classGroup->students()->attach($student->id, ['assigned_at' => now()]);
 
@@ -398,11 +372,11 @@ describe('ClassGroupController', function (): void {
 
     describe('removeStudent', function (): void {
         test('admin can remove a student from a class group', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $student = createStudentForSchool($admin->school_id);
+            $student = createStudent($admin->school_id);
 
             $classGroup->students()->attach($student->id, ['assigned_at' => now()]);
 
@@ -419,12 +393,12 @@ describe('ClassGroupController', function (): void {
         });
 
         test('admin can remove student from different school safely', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $otherSchool = School::factory()->create();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $student = createStudentForSchool($otherSchool->id);
+            $student = createStudent($otherSchool->id);
 
             $response = $this->actingAs($admin)
                 ->deleteJson("/api/class-groups/{$classGroup->id}/students/{$student->id}");
@@ -436,11 +410,11 @@ describe('ClassGroupController', function (): void {
 
     describe('assignTeacher', function (): void {
         test('admin can assign a teacher to a class group', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $teacher = createTeacherForSchool($admin->school_id);
+            $teacher = createTeacher($admin->school_id);
 
             $response = $this->actingAs($admin)
                 ->postJson("/api/class-groups/{$classGroup->id}/teachers/{$teacher->id}");
@@ -455,11 +429,11 @@ describe('ClassGroupController', function (): void {
         });
 
         test('cannot assign non-teacher user', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $student = createStudentForSchool($admin->school_id);
+            $student = createStudent($admin->school_id);
 
             $response = $this->actingAs($admin)
                 ->postJson("/api/class-groups/{$classGroup->id}/teachers/{$student->id}");
@@ -469,12 +443,12 @@ describe('ClassGroupController', function (): void {
         });
 
         test('cannot assign teacher from different school', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $otherSchool = School::factory()->create();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $teacher = createTeacherForSchool($otherSchool->id);
+            $teacher = createTeacher($otherSchool->id);
 
             $response = $this->actingAs($admin)
                 ->postJson("/api/class-groups/{$classGroup->id}/teachers/{$teacher->id}");
@@ -484,11 +458,11 @@ describe('ClassGroupController', function (): void {
         });
 
         test('cannot assign teacher already in class', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $teacher = createTeacherForSchool($admin->school_id);
+            $teacher = createTeacher($admin->school_id);
 
             $classGroup->teachers()->attach($teacher->id, ['assigned_at' => now()]);
 
@@ -502,11 +476,11 @@ describe('ClassGroupController', function (): void {
 
     describe('removeTeacher', function (): void {
         test('admin can remove a teacher from a class group', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $teacher = createTeacherForSchool($admin->school_id);
+            $teacher = createTeacher($admin->school_id);
 
             $classGroup->teachers()->attach($teacher->id, ['assigned_at' => now()]);
 
@@ -523,12 +497,12 @@ describe('ClassGroupController', function (): void {
         });
 
         test('admin can remove teacher from different school safely', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $otherSchool = School::factory()->create();
             $classGroup = ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
             ]);
-            $teacher = createTeacherForSchool($otherSchool->id);
+            $teacher = createTeacher($otherSchool->id);
 
             $response = $this->actingAs($admin)
                 ->deleteJson("/api/class-groups/{$classGroup->id}/teachers/{$teacher->id}");
@@ -540,7 +514,7 @@ describe('ClassGroupController', function (): void {
 
     describe('stats', function (): void {
         test('admin can view class group statistics', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             ClassGroup::factory()->create([
                 'school_id' => $admin->school_id,
                 'is_active' => true,
@@ -608,7 +582,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('admin cannot access class groups from different school', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $otherSchool = School::factory()->create();
             $classGroup = ClassGroup::factory()->create(['school_id' => $otherSchool->id]);
 
@@ -621,7 +595,7 @@ describe('ClassGroupController', function (): void {
 
     describe('validation errors', function (): void {
         test('class group name cannot be empty', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             $response = $this->actingAs($admin)
                 ->postJson('/api/class-groups', [
@@ -634,7 +608,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('academic year is required for creation', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             $response = $this->actingAs($admin)
                 ->postJson('/api/class-groups', [
@@ -646,7 +620,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('max_students must be positive integer', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             $response = $this->actingAs($admin)
                 ->postJson('/api/class-groups', [
@@ -662,7 +636,7 @@ describe('ClassGroupController', function (): void {
 
     describe('edge cases', function (): void {
         test('handles non-existent class group gracefully', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
             $nonExistentId = '550e8400-e29b-41d4-a716-446655440000';
 
             $response = $this->actingAs($admin)
@@ -672,7 +646,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('handles invalid UUID format', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             $response = $this->actingAs($admin)
                 ->getJson('/api/class-groups/invalid-id');
@@ -681,7 +655,7 @@ describe('ClassGroupController', function (): void {
         });
 
         test('can handle pagination with large page numbers', function (): void {
-            $admin = createSuperAdminForClassGroup();
+            $admin = createSuperAdmin();
 
             for ($i = 1; $i <= 5; $i++) {
                 ClassGroup::factory()->create([

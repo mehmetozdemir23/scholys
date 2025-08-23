@@ -39,7 +39,7 @@ final class ClassGroup extends Model
         return $this->belongsToMany(User::class)
             ->withTimestamps()
             ->withPivot('assigned_at')
-            ->whereHas('roles', function ($query): void {
+            ->whereHas('roles', function (Builder $query): void {
                 $query->where('name', 'student');
             });
     }
@@ -66,7 +66,7 @@ final class ClassGroup extends Model
         return $this->belongsToMany(User::class)
             ->withTimestamps()
             ->withPivot('assigned_at')
-            ->whereHas('roles', function ($query): void {
+            ->whereHas('roles', function (Builder $query): void {
                 $query->where('name', 'teacher');
             });
     }

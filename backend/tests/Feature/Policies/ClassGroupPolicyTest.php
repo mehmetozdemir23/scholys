@@ -3,23 +3,14 @@
 declare(strict_types=1);
 
 use App\Models\ClassGroup;
-use App\Models\Role;
 use App\Models\School;
 use App\Models\User;
 use App\Policies\ClassGroupPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+require_once __DIR__.'/../../Helpers/TestHelpers.php';
+
 uses(RefreshDatabase::class);
-
-function createUserWithRole(string $roleName, ?string $schoolId = null): User
-{
-    $school = $schoolId ? School::find($schoolId) : School::factory()->create();
-    $role = Role::firstOrCreate(['name' => $roleName]);
-    $user = User::factory()->create(['school_id' => $school->id]);
-    $user->roles()->attach($role);
-
-    return $user;
-}
 
 describe('ClassGroupPolicy', function (): void {
     describe('viewAny', function (): void {

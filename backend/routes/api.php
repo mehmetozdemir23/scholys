@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ClassGroupController;
+use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ImportUserController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolRegistrationController;
@@ -44,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('{classGroup}', [ClassGroupController::class, 'show'])->name('show');
         Route::patch('{classGroup}', [ClassGroupController::class, 'update'])->name('update');
         Route::delete('{classGroup}', [ClassGroupController::class, 'destroy'])->name('destroy');
+        Route::post('{classGroup}/students/{student}/subjects/{subject}/notes', [GradeController::class, 'store'])->name('students.grades.store');
 
         Route::name('students.')->prefix('{classGroup}/students')->group(function (): void {
             Route::post('{user}', [ClassGroupController::class, 'assignStudent'])->name('assign');

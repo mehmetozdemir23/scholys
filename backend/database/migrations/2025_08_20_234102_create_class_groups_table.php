@@ -17,8 +17,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('school_id')->constrained();
             $table->string('name');
-            $table->string('level')->nullable(); // 6ème, 5ème, 4ème, 3ème, etc.
-            $table->string('section')->nullable(); // A, B, C, etc.
+            $table->string('level')->nullable();
+            $table->string('section')->nullable();
             $table->text('description')->nullable();
             $table->integer('max_students')->nullable();
             $table->string('academic_year');
@@ -30,7 +30,6 @@ return new class extends Migration
             $table->index(['school_id', 'academic_year']);
             $table->index(['school_id', 'is_active']);
         });
-
     }
 
     /**

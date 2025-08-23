@@ -11,6 +11,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -137,11 +138,11 @@ final class ImportUsers implements ShouldQueue
         }
 
         DB::transaction(function () use ($usersToInsert, $rolesAssignments, $emailsToSend): void {
-            collect($usersToInsert)->chunk(500)->each(function ($chunk): void {
+            collect($usersToInsert)->chunk(500)->each(function (Collection $chunk): void {
                 User::insert($chunk->toArray());
             });
 
-            collect($rolesAssignments)->chunk(500)->each(function ($chunk): void {
+            collect($rolesAssignments)->chunk(500)->each(function (Collection $chunk): void {
                 DB::table('role_user')->insert($chunk->toArray());
             });
 
