@@ -534,7 +534,10 @@ describe('UserController', function (): void {
 
         test('sorts users by specified field and order', function (): void {
             $school = School::factory()->create();
-            $user = User::factory()->create(['school_id' => $school->id]);
+            $user = User::factory()->create([
+                'school_id' => $school->id,
+                'firstname' => 'Bob',
+            ]);
 
             User::factory()->create([
                 'school_id' => $school->id,

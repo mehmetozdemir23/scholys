@@ -14,12 +14,17 @@ final class Grade extends Model
     /** @use HasFactory<\Database\Factories\GradeFactory> */
     use HasFactory, HasUuids;
 
-    protected $casts = [
-        'given_at' => 'date',
-        'value' => 'decimal:2',
-        'max_value' => 'decimal:2',
-        'coefficient' => 'decimal:2',
-    ];
+    /** @return BelongsTo<ClassGroup, $this> */
+    public function classGroup(): BelongsTo
+    {
+        return $this->belongsTo(ClassGroup::class);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /** @return BelongsTo<Subject, $this> */
     public function subject(): BelongsTo
@@ -33,15 +38,13 @@ final class Grade extends Model
         return $this->belongsTo(User::class);
     }
 
-    /** @return BelongsTo<ClassGroup, $this> */
-    public function classGroup(): BelongsTo
+    protected function casts(): array
     {
-        return $this->belongsTo(ClassGroup::class);
-    }
-
-    /** @return BelongsTo<User, $this> */
-    public function student(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
+        return [
+            'given_at' => 'date',
+            'value' => 'decimal:2',
+            'max_value' => 'decimal:2',
+            'coefficient' => 'decimal:2',
+        ];
     }
 }

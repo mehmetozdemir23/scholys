@@ -14,11 +14,7 @@ final class School extends Model
     /** @use HasFactory<\Database\Factories\SchoolFactory> */
     use HasFactory, HasUuids;
 
-    /**
-     * Get the users that belong to the school.
-     *
-     * @return HasMany<User, $this>
-     */
+    /** @return HasMany<User, $this> */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);

@@ -21,58 +21,35 @@ final class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\SchoolFactory> */
     use HasApiTokens, HasFactory, HasUuids, Notifiable;
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the school that the user belongs to.
-     *
-     * @return BelongsTo<School, $this>
-     */
+    /** @return BelongsTo<School, $this> */
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
     }
 
-    /**
-     * Get the roles that the user has.
-     *
-     * @return BelongsToMany<Role, $this>
-     */
+    /** @return BelongsToMany<Role, $this> */
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
     }
 
-    /**
-     * Assign a role to the user.
-     */
     public function assignRole(string $roleName): void
     {
         $role = Role::where('name', $roleName)->firstOrFail();
         $this->roles()->syncWithoutDetaching($role);
     }
 
-    /**
-     * Check if user has a specific role.
-     */
     public function hasRole(string $roleName): bool
     {
         return $this->roles()->where('name', $roleName)->exists();
     }
 
-    /**
-     * Get the class groups that the user belongs to.
-     *
-     * @return BelongsToMany<ClassGroup, $this>
-     */
+    /** @return BelongsToMany<ClassGroup, $this> */
     public function classGroups(): BelongsToMany
     {
         return $this->belongsToMany(ClassGroup::class, 'class_group_user')
@@ -86,11 +63,6 @@ final class User extends Authenticatable
         return $this->belongsToMany(Subject::class);
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
