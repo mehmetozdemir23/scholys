@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\UpdateGrade;
 use App\Http\Requests\StoreGradeRequest;
+use App\Http\Requests\UpdateGradeRequest;
 use App\Models\ClassGroup;
 use App\Models\Grade;
 use App\Models\Subject;
@@ -25,6 +27,15 @@ final class GradeController extends Controller
 
         return response()->json([
             'message' => 'Note ajoutée avec succès!',
+        ]);
+    }
+
+    public function update(UpdateGradeRequest $request, ClassGroup $classGroup, User $student, Subject $subject, Grade $grade, UpdateGrade $updateGrade): JsonResponse
+    {
+        $updateGrade->handle($grade, $request->validated());
+
+        return response()->json([
+            'message' => 'Note modifiée avec succès!',
         ]);
     }
 }

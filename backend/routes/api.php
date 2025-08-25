@@ -42,14 +42,21 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('', [ClassGroupController::class, 'index'])->name('index');
         Route::post('', [ClassGroupController::class, 'store'])->name('store');
         Route::get('stats', [ClassGroupController::class, 'stats'])->name('stats');
-        Route::get('{classGroup}', [ClassGroupController::class, 'show'])->name('show');
-        Route::patch('{classGroup}', [ClassGroupController::class, 'update'])->name('update');
-        Route::delete('{classGroup}', [ClassGroupController::class, 'destroy'])->name('destroy');
-        Route::post('{classGroup}/students/{student}/subjects/{subject}/notes', [GradeController::class, 'store'])->name('students.grades.store');
+
+        Route::prefix('{classGroup}')->group(function (): void {
+            Route::get('', [ClassGroupController::class, 'show'])->name('show');
+            Route::patch('', [ClassGroupController::class, 'update'])->name('update');
+            Route::delete('', [ClassGroupController::class, 'destroy'])->name('destroy');
+        });
 
         Route::name('students.')->prefix('{classGroup}/students')->group(function (): void {
             Route::post('{user}', [ClassGroupController::class, 'assignStudent'])->name('assign');
             Route::delete('{user}', [ClassGroupController::class, 'removeStudent'])->name('remove');
+
+            Route::prefix('{student}/subjects/{subject}/grades')->group(function (): void {
+                Route::post('', [GradeController::class, 'store'])->name('grades.store');
+                Route::patch('{grade}', [GradeController::class, 'update'])->name('grades.update');
+            });
         });
 
         Route::name('teachers.')->prefix('{classGroup}/teachers')->group(function (): void {
