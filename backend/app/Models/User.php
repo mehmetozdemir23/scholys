@@ -53,7 +53,6 @@ final class User extends Authenticatable
     public function classGroups(): BelongsToMany
     {
         return $this->belongsToMany(ClassGroup::class, 'class_group_user')
-            ->withTimestamps()
             ->withPivot('assigned_at');
     }
 

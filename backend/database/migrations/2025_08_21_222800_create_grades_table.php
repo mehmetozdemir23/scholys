@@ -26,10 +26,12 @@ return new class extends Migration
             $table->text('comment')->nullable();
             $table->date('given_at');
             $table->string('academic_year');
+            $table->boolean('is_active');
             $table->timestamps();
 
             $table->index(['user_id', 'subject_id', 'academic_year']);
             $table->index(['class_group_id', 'subject_id']);
+            $table->index(['is_active', 'academic_year']);
         });
     }
 

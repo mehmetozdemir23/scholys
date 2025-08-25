@@ -29,8 +29,8 @@ final class StoreClassGroupRequest extends FormRequest
             'section' => ['nullable', 'string', 'max:10'],
             'description' => ['nullable', 'string', 'max:1000'],
             'max_students' => ['nullable', 'integer', 'min:1', 'max:100'],
-            'academic_year' => ['required', 'string', 'max:20'],
-            'is_active' => ['boolean'],
+            'academic_year' => ['sometimes', 'required', 'string', 'regex:/^\d{4}-\d{4}$/', 'max:20'],
+            'is_active' => ['sometimes', 'required', 'boolean'],
         ];
     }
 

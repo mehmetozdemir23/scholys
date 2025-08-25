@@ -30,12 +30,11 @@ final class StoreGradeRequest extends FormRequest
     {
         return [
             'value' => ['required', 'decimal:0,2'],
-            'max_value' => ['required', 'decimal:0,2'],
+            'max_value' => ['sometimes', 'required', 'decimal:0,2'],
             'title' => ['nullable', 'string', 'max:255'],
             'comment' => ['nullable', 'string', 'max:1024'],
-            'coefficient' => ['nullable', 'decimal:0,2'],
-            'given_at' => ['required', 'date'],
-            'academic_year' => ['required', 'string'],
+            'coefficient' => ['sometimes', 'required', 'decimal:0,2'],
+            'academic_year' => ['sometimes', 'required', 'string', 'regex:/^\d{4}-\d{4}$/'],
         ];
     }
 }

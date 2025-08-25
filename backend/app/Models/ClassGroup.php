@@ -19,6 +19,10 @@ final class ClassGroup extends Model
     /** @use HasFactory<\Database\Factories\ClassGroupFactory> */
     use HasFactory, HasUuids;
 
+    protected $attributes = [
+        'is_active' => true,
+    ];
+
     /** @return BelongsTo<School, $this> */
     public function school(): BelongsTo
     {
@@ -103,6 +107,13 @@ final class ClassGroup extends Model
         }
 
         return max(0, $this->max_students - $this->getCurrentStudentCount());
+    }
+
+    protected static function booted(): void
+    {
+        self::creating(function (ClassGroup $classGroup): void {
+            $classGroup->academic_year ??= getCurrentAcademicYear();
+        });
     }
 
     protected function casts(): array

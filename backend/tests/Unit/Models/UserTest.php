@@ -98,8 +98,6 @@ describe('User Model', function (): void {
 
             $pivotData = $user->classGroups->first()->pivot;
             expect($pivotData->assigned_at)->not->toBeNull();
-            expect($pivotData->created_at)->not->toBeNull();
-            expect($pivotData->updated_at)->not->toBeNull();
         });
 
         test('class groups relationship uses correct pivot table', function (): void {

@@ -46,7 +46,7 @@ final class ClassGroupFactory extends Factory
             'description' => fake()->optional()->sentence(),
             'max_students' => fake()->optional()->numberBetween(15, 35),
             'academic_year' => fake()->randomElement($academicYears),
-            'is_active' => fake()->boolean(80), // 80% chance d'être active
+            'is_active' => fake()->boolean(80),
         ];
     }
 

@@ -21,11 +21,8 @@ test('teacher can create grade for student in their class and subject', function
 
     $gradeData = [
         'value' => 15.50,
-        'max_value' => 20.00,
-        'coefficient' => 1.00,
         'title' => 'Contrôle Chapitre 1',
         'comment' => 'Bon travail',
-        'given_at' => '2024-01-15',
         'academic_year' => '2024-2025',
     ];
 
@@ -56,9 +53,6 @@ test('teacher cannot create grade for student not in their class', function () {
 
     $gradeData = [
         'value' => 15.50,
-        'max_value' => 20.00,
-        'coefficient' => 1.00,
-        'given_at' => '2024-01-15',
         'academic_year' => '2024-2025',
     ];
 
@@ -80,9 +74,6 @@ test('teacher cannot create grade for subject they do not teach', function () {
 
     $gradeData = [
         'value' => 15.50,
-        'max_value' => 20.00,
-        'coefficient' => 1.00,
-        'given_at' => '2024-01-15',
         'academic_year' => '2024-2025',
     ];
 
@@ -101,9 +92,6 @@ test('student cannot create grades', function () {
 
     $gradeData = [
         'value' => 15.50,
-        'max_value' => 20.00,
-        'coefficient' => 1.00,
-        'given_at' => '2024-01-15',
         'academic_year' => '2024-2025',
     ];
 
@@ -128,7 +116,33 @@ test('grade creation validates required fields', function () {
         ->postJson("/api/class-groups/{$classGroup->id}/students/{$student->id}/subjects/{$subject->id}/notes", []);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors(['value', 'max_value', 'given_at', 'academic_year']);
+        ->assertJsonValidationErrors(['value']);
 
     expect(Grade::count())->toBe(0);
+});
+
+test('grade uses default values when not provided', function () {
+    $teacher = createTeacher();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $teacher->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $teacher->school_id]);
+
+    $teacher->subjects()->attach($subject);
+    $teacher->classGroups()->attach($classGroup, ['assigned_at' => '2024-09-01']);
+    $student->classGroups()->attach($classGroup, ['assigned_at' => '2024-09-01']);
+
+    $gradeData = [
+        'value' => 15.50,
+    ];
+
+    $response = $this->actingAs($teacher)
+        ->postJson("/api/class-groups/{$classGroup->id}/students/{$student->id}/subjects/{$subject->id}/notes", $gradeData);
+
+    $response->assertStatus(200);
+
+    $grade = Grade::first();
+    expect($grade->coefficient)->toBe('1.00')
+        ->and($grade->max_value)->toBe('20.00')
+        ->and($grade->is_active)->toBe(true)
+        ->and($grade->given_at)->not->toBeNull();
 });

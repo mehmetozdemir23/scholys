@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('max_students')->nullable();
             $table->string('academic_year');
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active');
             $table->timestamps();
 
             $table->unique(['school_id', 'name', 'academic_year']);

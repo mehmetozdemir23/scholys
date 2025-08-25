@@ -208,6 +208,22 @@ describe('ClassGroupController', function (): void {
             $response->assertUnprocessable()
                 ->assertJsonValidationErrors(['name']);
         });
+
+        test('class group uses default values when not provided', function (): void {
+            $admin = createSuperAdmin();
+
+            $response = $this->actingAs($admin)
+                ->postJson('/api/class-groups', [
+                    'name' => 'Test Class',
+                ]);
+
+            $response->assertCreated();
+
+            $classGroup = ClassGroup::where('name', 'Test Class')->first();
+            expect($classGroup->is_active)->toBe(true)
+                ->and($classGroup->academic_year)->toMatch('/^\d{4}-\d{4}$/')
+                ->and($classGroup->academic_year)->not->toBeNull();
+        });
     });
 
     describe('show', function (): void {
@@ -605,18 +621,6 @@ describe('ClassGroupController', function (): void {
 
             $response->assertUnprocessable()
                 ->assertJsonValidationErrors(['name']);
-        });
-
-        test('academic year is required for creation', function (): void {
-            $admin = createSuperAdmin();
-
-            $response = $this->actingAs($admin)
-                ->postJson('/api/class-groups', [
-                    'name' => 'Test Class',
-                ]);
-
-            $response->assertUnprocessable()
-                ->assertJsonValidationErrors(['academic_year']);
         });
 
         test('max_students must be positive integer', function (): void {

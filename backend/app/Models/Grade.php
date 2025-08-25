@@ -14,6 +14,12 @@ final class Grade extends Model
     /** @use HasFactory<\Database\Factories\GradeFactory> */
     use HasFactory, HasUuids;
 
+    protected $attributes = [
+        'is_active' => true,
+        'coefficient' => 1.0,
+        'max_value' => 20.0,
+    ];
+
     /** @return BelongsTo<ClassGroup, $this> */
     public function classGroup(): BelongsTo
     {
@@ -38,6 +44,14 @@ final class Grade extends Model
         return $this->belongsTo(User::class);
     }
 
+    protected static function booted(): void
+    {
+        self::creating(function (Grade $grade): void {
+            $grade->given_at ??= now();
+            $grade->academic_year ??= getCurrentAcademicYear();
+        });
+    }
+
     protected function casts(): array
     {
         return [
@@ -45,6 +59,7 @@ final class Grade extends Model
             'value' => 'decimal:2',
             'max_value' => 'decimal:2',
             'coefficient' => 'decimal:2',
+            'is_active' => 'boolean',
         ];
     }
 }
