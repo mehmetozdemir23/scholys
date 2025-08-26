@@ -30,3 +30,8 @@ function createSuperAdmin(?string $schoolId = null): User
 {
     return createUserWithRole('super_admin', $schoolId);
 }
+
+function createAdmin(?string $schoolId = null): User
+{
+    return createUserWithRole('admin', $schoolId);
+}

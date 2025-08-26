@@ -6,7 +6,7 @@ use App\Models\ClassGroup;
 use App\Models\Grade;
 use App\Models\Subject;
 
-require_once __DIR__ . '/../../../Helpers/TestHelpers.php';
+require_once __DIR__.'/../../../Helpers/TestHelpers.php';
 
 test('teacher can create grade for student in their class and subject', function () {
     $teacher = createTeacher();
@@ -229,7 +229,6 @@ test('teacher cannot update grade if no longer assigned to subject', function ()
         'value' => 15.50,
     ]);
 
-
     $teacher->subjects()->detach($subject);
 
     $updateData = ['value' => 18.00];
@@ -321,7 +320,6 @@ test('grade update validates max_value constraint when only value updated', func
         'max_value' => 20.00,
     ]);
 
-
     $updateData = ['value' => 22.00];
 
     $response = $this->actingAs($teacher)
@@ -381,7 +379,6 @@ test('grade update validates when reducing max_value below current value', funct
         'value' => 18.00,
         'max_value' => 20.00,
     ]);
-
 
     $updateData = ['max_value' => 15.00];
 

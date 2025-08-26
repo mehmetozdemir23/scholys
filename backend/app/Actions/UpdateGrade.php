@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions;
 
 use App\Models\Grade;
-use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
-class UpdateGrade
+final class UpdateGrade
 {
     public function handle(Grade $grade, array $attributes): void
     {
@@ -18,7 +19,7 @@ class UpdateGrade
             'student_id' => $grade->student_id,
             'subject_id' => $grade->subject_id,
             'updated_attributes' => $attributes,
-            'modified_at' => now()
+            'modified_at' => now(),
         ]);
     }
 }

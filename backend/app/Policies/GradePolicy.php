@@ -15,6 +15,7 @@ final class GradePolicy
     {
         return $teacher->hasRole('teacher')
             && $teacher->subjects()->where('subject_id', $subject->id)->exists()
+            && $teacher->classGroups()->where('class_group_id', $classGroup->id)->exists()
             && $student->hasRole('student')
             && $student->classGroups()->where('class_group_id', $classGroup->id)->exists();
     }

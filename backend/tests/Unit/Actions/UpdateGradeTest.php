@@ -26,7 +26,7 @@ test('UpdateGrade updates grade attributes', function (): void {
     ]);
 
     $updateAction = new UpdateGrade();
-    
+
     $updateAction->handle($grade, [
         'value' => 18.00,
         'title' => 'Updated title',
@@ -56,7 +56,7 @@ test('UpdateGrade logs the modification', function (): void {
     ]);
 
     $updateAction = new UpdateGrade();
-    
+
     $updateAction->handle($grade, ['value' => 18.00]);
 
     Log::shouldHaveReceived('info')

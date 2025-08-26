@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateGradeRequest extends FormRequest
+final class UpdateGradeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,5 +32,4 @@ class UpdateGradeRequest extends FormRequest
             'academic_year' => ['sometimes', 'required', 'string', 'regex:/^\d{4}-\d{4}$/'],
         ];
     }
-
 }

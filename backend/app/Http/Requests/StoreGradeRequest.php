@@ -37,5 +37,4 @@ final class StoreGradeRequest extends FormRequest
             'academic_year' => ['sometimes', 'required', 'string', 'regex:/^\d{4}-\d{4}$/'],
         ];
     }
-
 }
