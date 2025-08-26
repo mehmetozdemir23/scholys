@@ -421,3 +421,104 @@ test('grade update validates academic year format', function () {
     $grade->refresh();
     expect($grade->academic_year)->toBe('2024-2025');
 });
+
+test('teacher can deactivate grade they created', function () {
+    $teacher = createTeacher();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $teacher->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $teacher->school_id]);
+
+    $teacher->subjects()->attach($subject);
+    $teacher->classGroups()->attach($classGroup, ['assigned_at' => '2024-09-01']);
+    $student->classGroups()->attach($classGroup, ['assigned_at' => '2024-09-01']);
+
+    $grade = Grade::factory()->create([
+        'student_id' => $student->id,
+        'teacher_id' => $teacher->id,
+        'subject_id' => $subject->id,
+        'class_group_id' => $classGroup->id,
+        'is_active' => true,
+    ]);
+
+    $response = $this->actingAs($teacher)
+        ->patchJson("/api/class-groups/{$classGroup->id}/students/{$student->id}/subjects/{$subject->id}/grades/{$grade->id}/deactivate");
+
+    $response->assertStatus(200)
+        ->assertJson(['message' => 'Note désactivée avec succès!']);
+
+    $grade->refresh();
+    expect($grade->is_active)->toBeFalse()
+        ->and($grade->deactivated_at)->not->toBeNull();
+});
+
+test('teacher cannot deactivate already deactivated grade', function () {
+    $teacher = createTeacher();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $teacher->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $teacher->school_id]);
+
+    $teacher->subjects()->attach($subject);
+    $teacher->classGroups()->attach($classGroup, ['assigned_at' => '2024-09-01']);
+    $student->classGroups()->attach($classGroup, ['assigned_at' => '2024-09-01']);
+
+    $grade = Grade::factory()->create([
+        'student_id' => $student->id,
+        'teacher_id' => $teacher->id,
+        'subject_id' => $subject->id,
+        'class_group_id' => $classGroup->id,
+        'is_active' => false,
+    ]);
+
+    $response = $this->actingAs($teacher)
+        ->patchJson("/api/class-groups/{$classGroup->id}/students/{$student->id}/subjects/{$subject->id}/grades/{$grade->id}/deactivate");
+
+    $response->assertStatus(422)
+        ->assertJson(['message' => 'Cette note est déjà désactivée']);
+});
+
+test('teacher cannot deactivate grade created by another teacher', function () {
+    $teacher1 = createTeacher();
+    $teacher2 = createTeacher();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $teacher1->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $teacher1->school_id]);
+
+    $grade = Grade::factory()->create([
+        'student_id' => $student->id,
+        'teacher_id' => $teacher1->id,
+        'subject_id' => $subject->id,
+        'class_group_id' => $classGroup->id,
+        'is_active' => true,
+    ]);
+
+    $response = $this->actingAs($teacher2)
+        ->patchJson("/api/class-groups/{$classGroup->id}/students/{$student->id}/subjects/{$subject->id}/grades/{$grade->id}/deactivate");
+
+    $response->assertStatus(403);
+
+    $grade->refresh();
+    expect($grade->is_active)->toBeTrue();
+});
+
+test('student cannot deactivate grades', function () {
+    $teacher = createTeacher();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $teacher->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $teacher->school_id]);
+
+    $grade = Grade::factory()->create([
+        'student_id' => $student->id,
+        'teacher_id' => $teacher->id,
+        'subject_id' => $subject->id,
+        'class_group_id' => $classGroup->id,
+        'is_active' => true,
+    ]);
+
+    $response = $this->actingAs($student)
+        ->patchJson("/api/class-groups/{$classGroup->id}/students/{$student->id}/subjects/{$subject->id}/grades/{$grade->id}/deactivate");
+
+    $response->assertStatus(403);
+
+    $grade->refresh();
+    expect($grade->is_active)->toBeTrue();
+});

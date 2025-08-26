@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\DeactivateGrade;
 use App\Actions\UpdateGrade;
 use App\Http\Requests\StoreGradeRequest;
 use App\Http\Requests\UpdateGradeRequest;
@@ -12,6 +13,7 @@ use App\Models\Grade;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 final class GradeController extends Controller
 {
@@ -36,6 +38,21 @@ final class GradeController extends Controller
 
         return response()->json([
             'message' => 'Note modifiée avec succès!',
+        ]);
+    }
+
+    public function deactivate(ClassGroup $classGroup, User $student, Subject $subject, Grade $grade, DeactivateGrade $deactivateGrade): JsonResponse
+    {
+        Gate::authorize('deactivate', [$grade, $classGroup, $student, $subject]);
+
+        if (! $grade->is_active) {
+            return response()->json(['message' => 'Cette note est déjà désactivée'], 422);
+        }
+
+        $deactivateGrade->handle($grade);
+
+        return response()->json([
+            'message' => 'Note désactivée avec succès!',
         ]);
     }
 }

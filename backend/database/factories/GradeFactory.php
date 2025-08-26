@@ -25,6 +25,8 @@ final class GradeFactory extends Factory
             'comment' => fake()->optional()->text(100),
             'given_at' => fake()->date(),
             'academic_year' => fake()->randomElement(['2023-2024', '2024-2025', '2025-2026']),
+            'is_active' => true,
+            'deactivated_at' => null,
         ];
     }
 }

@@ -53,9 +53,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::post('{user}', [ClassGroupController::class, 'assignStudent'])->name('assign');
             Route::delete('{user}', [ClassGroupController::class, 'removeStudent'])->name('remove');
 
-            Route::prefix('{student}/subjects/{subject}/grades')->group(function (): void {
-                Route::post('', [GradeController::class, 'store'])->name('grades.store');
-                Route::patch('{grade}', [GradeController::class, 'update'])->name('grades.update');
+            Route::name('grades.')->prefix('{student}/subjects/{subject}/grades')->group(function (): void {
+                Route::post('', [GradeController::class, 'store'])->name('store');
+                Route::patch('{grade}', [GradeController::class, 'update'])->name('update');
+                Route::patch('{grade}/deactivate', [GradeController::class, 'deactivate'])->name('deactivate');
             });
         });
 

@@ -184,3 +184,85 @@ test('teacher cannot update grade with inconsistent subject', function (): void 
 
     expect($result)->toBeFalse();
 });
+
+test('teacher can deactivate grade they created with valid entities', function (): void {
+    $teacher = createTeacher();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $teacher->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $teacher->school_id]);
+
+    $teacher->subjects()->attach($subject);
+    $teacher->classGroups()->attach($classGroup, ['assigned_at' => '2024-09-01']);
+    $student->classGroups()->attach($classGroup, ['assigned_at' => '2024-09-01']);
+
+    $grade = Grade::factory()->create([
+        'student_id' => $student->id,
+        'teacher_id' => $teacher->id,
+        'subject_id' => $subject->id,
+        'class_group_id' => $classGroup->id,
+    ]);
+
+    $policy = new GradePolicy();
+    $result = $policy->deactivate($teacher, $grade, $classGroup, $student, $subject);
+
+    expect($result)->toBeTrue();
+});
+
+test('teacher cannot deactivate grade created by another teacher', function (): void {
+    $teacher1 = createTeacher();
+    $teacher2 = createTeacher();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $teacher1->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $teacher1->school_id]);
+
+    $grade = Grade::factory()->create([
+        'student_id' => $student->id,
+        'teacher_id' => $teacher1->id,
+        'subject_id' => $subject->id,
+        'class_group_id' => $classGroup->id,
+    ]);
+
+    $policy = new GradePolicy();
+    $result = $policy->deactivate($teacher2, $grade, $classGroup, $student, $subject);
+
+    expect($result)->toBeFalse();
+});
+
+test('teacher cannot deactivate grade with inconsistent entities', function (): void {
+    $teacher = createTeacher();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $teacher->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $teacher->school_id]);
+    $otherClassGroup = ClassGroup::factory()->create(['school_id' => $teacher->school_id]);
+
+    $grade = Grade::factory()->create([
+        'student_id' => $student->id,
+        'teacher_id' => $teacher->id,
+        'subject_id' => $subject->id,
+        'class_group_id' => $classGroup->id,
+    ]);
+
+    $policy = new GradePolicy();
+    $result = $policy->deactivate($teacher, $grade, $otherClassGroup, $student, $subject);
+
+    expect($result)->toBeFalse();
+});
+
+test('non-teacher cannot deactivate grade', function (): void {
+    $admin = createSuperAdmin();
+    $student = createStudent();
+    $subject = Subject::factory()->create(['school_id' => $admin->school_id]);
+    $classGroup = ClassGroup::factory()->create(['school_id' => $admin->school_id]);
+
+    $grade = Grade::factory()->create([
+        'student_id' => $student->id,
+        'teacher_id' => $admin->id,
+        'subject_id' => $subject->id,
+        'class_group_id' => $classGroup->id,
+    ]);
+
+    $policy = new GradePolicy();
+    $result = $policy->deactivate($admin, $grade, $classGroup, $student, $subject);
+
+    expect($result)->toBeFalse();
+});

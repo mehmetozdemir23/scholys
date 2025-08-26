@@ -60,6 +60,7 @@ final class Grade extends Model
             'max_value' => 'decimal:2',
             'coefficient' => 'decimal:2',
             'is_active' => 'boolean',
+            'deactivated_at' => 'datetime',
         ];
     }
 }

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->date('given_at');
             $table->string('academic_year');
             $table->boolean('is_active');
+            $table->datetime('deactivated_at')->nullable();
             $table->timestamps();
 
             $table->index(['user_id', 'subject_id', 'academic_year']);
