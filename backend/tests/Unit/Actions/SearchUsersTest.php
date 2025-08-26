@@ -38,7 +38,7 @@ describe('SearchUsers', function (): void {
             'email' => 'bob@example.com',
         ]);
 
-        $searchUsers = new SearchUsers;
+        $searchUsers = new SearchUsers();
         $result = $searchUsers->handle(['q' => 'Alice'], $school->id);
 
         expect($result->total())->toBe(1)

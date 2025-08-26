@@ -20,7 +20,7 @@ test('handles account creation with temporary password', function (): void {
     );
 
     $request = Request::create($url);
-    $completeAccountSetup = new CompleteAccountSetup;
+    $completeAccountSetup = new CompleteAccountSetup();
 
     $result = $completeAccountSetup->handle($request);
 
@@ -40,7 +40,7 @@ test('handles account creation with temporary password', function (): void {
 test('throws exception for invalid signature', function (): void {
 
     $request = Request::create('/school/register?token=admin@school.com');
-    $completeAccountSetup = new CompleteAccountSetup;
+    $completeAccountSetup = new CompleteAccountSetup();
 
     expect(fn () => $completeAccountSetup->handle($request))
         ->toThrow(InvalidSignatureException::class);
@@ -55,7 +55,7 @@ test('throws exception for expired signature', function (): void {
     );
 
     $request = Request::create($url);
-    $completeAccountSetup = new CompleteAccountSetup;
+    $completeAccountSetup = new CompleteAccountSetup();
 
     expect(fn () => $completeAccountSetup->handle($request))
         ->toThrow(InvalidSignatureException::class);

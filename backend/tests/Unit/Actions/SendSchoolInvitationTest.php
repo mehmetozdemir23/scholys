@@ -10,7 +10,7 @@ test('school invitation email is sent', function (): void {
     $email = 'test@example.com';
     Mail::fake();
 
-    $sendSchoolInvitation = new SendSchoolInvitation;
+    $sendSchoolInvitation = new SendSchoolInvitation();
     $sendSchoolInvitation->handle($email);
 
     Mail::assertSent(SchoolInvitationMail::class, $email);

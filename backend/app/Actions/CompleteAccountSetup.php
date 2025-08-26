@@ -25,7 +25,7 @@ final class CompleteAccountSetup
     public function handle(Request $request): array
     {
         if (! $request->hasValidSignature()) {
-            throw new InvalidSignatureException;
+            throw new InvalidSignatureException();
         }
 
         $user = null;
