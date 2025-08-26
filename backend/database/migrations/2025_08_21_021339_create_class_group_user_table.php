@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('assigned_at');
             $table->timestamps();
 
-            $table->unique(['class_group_id', 'user_id']);
+            $table->primary(['class_group_id', 'user_id']);
             $table->index(['user_id']);
         });
     }

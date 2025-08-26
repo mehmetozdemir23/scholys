@@ -14,11 +14,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('subject_user', function (Blueprint $table): void {
-            $table->foreignUuid('user_id')->constrained();
             $table->foreignUuid('subject_id')->constrained();
+            $table->foreignUuid('user_id')->constrained();
+            $table->timestamps();
 
             $table->primary(['subject_id', 'user_id']);
-            $table->timestamps();
+            $table->index(['user_id']);
         });
     }
 
