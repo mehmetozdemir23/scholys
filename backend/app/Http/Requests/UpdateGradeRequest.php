@@ -13,7 +13,12 @@ final class UpdateGradeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('grade'));
+        return $this->user()->can('update', [
+            $this->route('grade'),
+            $this->route('classGroup'),
+            $this->route('student'),
+            $this->route('subject'),
+        ]);
     }
 
     /**
