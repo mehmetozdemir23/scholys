@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\GetSchoolStats;
 use App\Models\ClassGroup;
+use App\Models\Grade;
 
 require_once __DIR__.'/../../Helpers/TestHelpers.php';
 
@@ -14,7 +15,7 @@ test('GetSchoolStats returns correct structure', function (): void {
     $result = $action->handle($superAdmin);
 
     expect($result)->toBeArray()
-        ->and($result)->toHaveKeys(['total_students', 'total_teachers', 'total_classes']);
+        ->and($result)->toHaveKeys(['total_students', 'total_teachers', 'total_classes', 'school_average']);
 });
 
 test('GetSchoolStats counts users correctly by role', function (): void {
@@ -69,4 +70,36 @@ test('GetSchoolStats filters by user school', function (): void {
 
     expect($result['total_students'])->toBe(1)
         ->and($result['total_teachers'])->toBe(1);
+});
+
+test('GetSchoolStats calculates school average from active grades only', function (): void {
+    $superAdmin = createSuperAdmin();
+    $school = $superAdmin->school;
+    $student = createStudent($school->id);
+
+    Grade::factory()->create([
+        'student_id' => $student->id,
+        'value' => 15.0,
+        'is_active' => true,
+    ]);
+
+    Grade::factory()->create([
+        'student_id' => $student->id,
+        'value' => 10.0,
+        'is_active' => false,
+    ]);
+
+    $action = new GetSchoolStats();
+    $result = $action->handle($superAdmin);
+
+    expect($result['school_average'])->toBe(15.0);
+});
+
+test('GetSchoolStats returns zero average when no grades', function (): void {
+    $superAdmin = createSuperAdmin();
+
+    $action = new GetSchoolStats();
+    $result = $action->handle($superAdmin);
+
+    expect($result['school_average'])->toBe(0.0);
 });

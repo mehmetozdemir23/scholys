@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 final class School extends Model
 {
@@ -41,5 +42,11 @@ final class School extends Model
     public function classGroups(): HasMany
     {
         return $this->hasMany(ClassGroup::class);
+    }
+
+    /** @return HasManyThrough<Grade, User, $this> */
+    public function grades(): HasManyThrough
+    {
+        return $this->hasManyThrough(Grade::class, User::class, 'school_id', 'student_id');
     }
 }

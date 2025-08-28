@@ -22,6 +22,7 @@ test('super admin can access school stats', function () {
             'total_students',
             'total_classes',
             'total_teachers',
+            'school_average',
         ]);
 });
 
@@ -36,6 +37,7 @@ test('teacher can access school stats', function () {
             'total_students',
             'total_classes',
             'total_teachers',
+            'school_average',
         ]);
 });
 
@@ -82,6 +84,7 @@ test('school stats returns correct counts', function () {
             'total_students' => 3,
             'total_teachers' => 2,
             'total_classes' => 2,
+            'school_average' => 0.0,
         ]);
 });
 
@@ -106,5 +109,6 @@ test('school stats only counts users from same school', function () {
             'total_students' => 1,
             'total_teachers' => 1,
             'total_classes' => 1,
+            'school_average' => 0.0,
         ]);
 });

@@ -15,11 +15,13 @@ final class GetSchoolStats
         $totalStudents = $school->students()->count();
         $totalClasses = $school->classGroups()->where('academic_year', getCurrentAcademicYear())->count();
         $totalTeachers = $school->teachers()->count();
+        $schoolAverage = $school->grades()->active()->avg('value') ?? 0.0;
 
         return [
             'total_students' => $totalStudents,
             'total_classes' => $totalClasses,
             'total_teachers' => $totalTeachers,
+            'school_average' => $schoolAverage,
         ];
     }
 }

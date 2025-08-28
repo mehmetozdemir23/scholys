@@ -16,6 +16,7 @@ final class DashboardPolicy
         if ($user->hasRole('admin')) {
             return true;
         }
+
         return $user->hasRole('teacher');
     }
 }

@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-require_once __DIR__ . '/../../../Helpers/TestHelpers.php';
+require_once __DIR__.'/../../../Helpers/TestHelpers.php';
 
 describe('UserController', function (): void {
     describe('store', function (): void {
