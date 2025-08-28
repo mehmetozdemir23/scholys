@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-require_once __DIR__.'/../../../Helpers/TestHelpers.php';
+require_once __DIR__ . '/../../../Helpers/TestHelpers.php';
 
 describe('UserController', function (): void {
     describe('store', function (): void {
@@ -246,11 +246,11 @@ describe('UserController', function (): void {
     });
 
     describe('updatePassword', function (): void {
-        test('updates user password successfully', function (): void {
+        test('updates users.password successfully', function (): void {
             $user = User::factory()->create(['password' => bcrypt('old_password')]);
 
             $this->actingAs($user);
-            $response = $this->postJson(route('user.password.update'), [
+            $response = $this->postJson(route('users.password'), [
                 'new_password' => 'new_password123',
                 'new_password_confirmation' => 'new_password123',
             ]);
@@ -263,7 +263,7 @@ describe('UserController', function (): void {
         });
 
         test('requires authentication', function (): void {
-            $response = $this->postJson(route('user.password.update'), [
+            $response = $this->postJson(route('users.password'), [
                 'new_password' => 'new_password123',
                 'new_password_confirmation' => 'new_password123',
             ]);
@@ -274,7 +274,7 @@ describe('UserController', function (): void {
         test('validates new password is required', function (): void {
             $user = User::factory()->create();
             $this->actingAs($user);
-            $response = $this->postJson(route('user.password.update'), []);
+            $response = $this->postJson(route('users.password'), []);
 
             $response->assertStatus(422)
                 ->assertJsonValidationErrors(['new_password']);
@@ -283,7 +283,7 @@ describe('UserController', function (): void {
         test('validates new password minimum length', function (): void {
             $user = User::factory()->create();
             $this->actingAs($user);
-            $response = $this->postJson(route('user.password.update'), [
+            $response = $this->postJson(route('users.password'), [
                 'new_password' => 'short',
                 'new_password_confirmation' => 'short',
             ]);
@@ -295,7 +295,7 @@ describe('UserController', function (): void {
         test('validates new password confirmation', function (): void {
             $user = User::factory()->create();
             $this->actingAs($user);
-            $response = $this->postJson(route('user.password.update'), [
+            $response = $this->postJson(route('users.password'), [
                 'new_password' => 'valid_password123',
                 'new_password_confirmation' => 'different_password',
             ]);

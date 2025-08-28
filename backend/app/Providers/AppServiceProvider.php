@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Policies\DashboardPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -28,6 +30,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureCommands();
         $this->configureModels();
         $this->configureDates();
+        $this->configureGates();
     }
 
     /**
@@ -55,5 +58,13 @@ final class AppServiceProvider extends ServiceProvider
     {
         Model::shouldBeStrict(! $this->app->isProduction());
         Model::unguard();
+    }
+
+    /**
+     * Configure the gates.
+     */
+    private function configureGates(): void
+    {
+        Gate::define('viewSchoolStats', [DashboardPolicy::class, 'viewSchoolStats']);
     }
 }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ClassGroupController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ImportUserController;
 use App\Http\Controllers\SchoolController;
@@ -25,11 +26,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('search', [UserController::class, 'search'])->name('search');
         Route::post('', [UserController::class, 'store'])->name('store');
         Route::patch('{user}', [UserController::class, 'update'])->name('update');
-        Route::post('import', ImportUserController::class);
+        Route::post('import', ImportUserController::class)->name('import');
+        Route::post('password', [UserController::class, 'updatePassword'])->name('password');
     });
-
-    Route::post('user/password', [UserController::class, 'updatePassword'])
-        ->name('user.password.update');
 
     Route::name('school.')->prefix('/school')->group(function (): void {
         Route::post('registration/reset-password', [SchoolRegistrationController::class, 'resetPasswordAfterInvitation'])
@@ -64,5 +63,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::post('{user}', [ClassGroupController::class, 'assignTeacher'])->name('assign');
             Route::delete('{user}', [ClassGroupController::class, 'removeTeacher'])->name('remove');
         });
+    });
+
+    Route::name('dashboard.')->prefix('/dashboard')->group(function (): void {
+        Route::get('school-stats', [DashboardController::class, 'schoolStats'])->name('school-stats');
     });
 });
